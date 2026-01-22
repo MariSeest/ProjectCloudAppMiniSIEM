@@ -22,12 +22,12 @@ export default function Nav() {
 
             <NavLink
                 to="/"
+                end
                 style={({ isActive }) => ({
                     ...baseLink,
                     color: isActive ? "white" : "#111",
                     background: isActive ? "#111" : "transparent",
                 })}
-                end
             >
                 Dashboard
             </NavLink>
@@ -64,10 +64,18 @@ export default function Nav() {
             >
                 Incidents
             </NavLink>
-            <NavLink to="/cves" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+
+            {/* ✅ CVEs */}
+            <NavLink
+                to="/cves"
+                style={({ isActive }) => ({
+                    ...baseLink,
+                    color: isActive ? "white" : "#111",
+                    background: isActive ? "#111" : "transparent",
+                })}
+            >
                 CVEs
             </NavLink>
-
         </nav>
     );
 }

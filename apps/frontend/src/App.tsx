@@ -27,6 +27,7 @@ export default function App() {
                         </ProtectedRoute>
                     }
                 />
+
                 <Route
                     path="/events"
                     element={
@@ -35,6 +36,7 @@ export default function App() {
                         </ProtectedRoute>
                     }
                 />
+
                 <Route
                     path="/alerts"
                     element={
@@ -43,6 +45,7 @@ export default function App() {
                         </ProtectedRoute>
                     }
                 />
+
                 <Route
                     path="/incidents"
                     element={

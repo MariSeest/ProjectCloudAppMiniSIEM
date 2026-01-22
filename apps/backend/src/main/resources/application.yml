@@ -1,12 +1,16 @@
 server:
   port: 8080
-
-opencti:
-  url: ${OPENCTI_URL}
-  token: ${OPENCTI_TOKEN}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
+opencti:
+  url: ${OPENCTI_URL:http://localhost:9090/graphql}
+  token: ${OPENCTI_TOKEN:}

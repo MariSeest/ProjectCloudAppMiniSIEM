@@ -11,14 +11,25 @@ export default function SideNav() {
                 <NavLink to="/" end className={({ isActive }) => navClass(isActive)}>
                     Dashboard
                 </NavLink>
+
                 <NavLink to="/events" className={({ isActive }) => navClass(isActive)}>
                     Events
                 </NavLink>
+
                 <NavLink to="/alerts" className={({ isActive }) => navClass(isActive)}>
                     Alerts
                 </NavLink>
-                <NavLink to="/incidents" className={({ isActive }) => navClass(isActive)}>
+
+                <NavLink
+                    to="/incidents"
+                    className={({ isActive }) => navClass(isActive)}
+                >
                     Incidents
+                </NavLink>
+
+                {/* ✅ CVEs */}
+                <NavLink to="/cves" className={({ isActive }) => navClass(isActive)}>
+                    CVEs
                 </NavLink>
             </div>
         </aside>
