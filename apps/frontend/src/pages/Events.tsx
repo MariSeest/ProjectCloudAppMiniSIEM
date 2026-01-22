@@ -25,23 +25,20 @@ export default function Events() {
 
     return (
         <div>
-            <h1>Events</h1>
+            <h1 className="page-title">Events</h1>
+            <p className="page-subtitle">Normalized security events.</p>
 
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+            <div className="filters">
                 <label>
                     Min severity:&nbsp;
-                    <select value={minSeverity} onChange={(e) => setMinSeverity(Number(e.target.value))}>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((v) => (
-                            <option key={v} value={v}>
-                                {v}+
-                            </option>
-                        ))}
+                    <select className="select" value={minSeverity} onChange={(e) => setMinSeverity(Number(e.target.value))}>
+                        {[1,2,3,4,5,6,7,8,9].map(v => <option key={v} value={v}>{v}+</option>)}
                     </select>
                 </label>
 
                 <label>
                     Category:&nbsp;
-                    <select value={category} onChange={(e) => setCategory(e.target.value as any)}>
+                    <select className="select" value={category} onChange={(e) => setCategory(e.target.value as any)}>
                         <option value="ALL">ALL</option>
                         <option value="AUTH">AUTH</option>
                         <option value="PROCESS">PROCESS</option>
@@ -52,20 +49,16 @@ export default function Events() {
 
                 <label>
                     Host:&nbsp;
-                    <select value={host} onChange={(e) => setHost(e.target.value)}>
+                    <select className="select" value={host} onChange={(e) => setHost(e.target.value)}>
                         <option value="ALL">ALL</option>
-                        {hosts.map((h) => (
-                            <option key={h} value={h}>
-                                {h}
-                            </option>
-                        ))}
+                        {hosts.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                 </label>
             </div>
 
-            <table width="100%" cellPadding={10} style={{ borderCollapse: "collapse" }}>
+            <table className="table">
                 <thead>
-                <tr style={{ background: "#f5f5f5", textAlign: "left" }}>
+                <tr>
                     <th>Time</th>
                     <th>Category</th>
                     <th>Action</th>
@@ -79,13 +72,11 @@ export default function Events() {
                 </thead>
                 <tbody>
                 {filtered.map((e) => (
-                    <tr key={e.id} style={{ borderBottom: "1px solid #eee" }}>
+                    <tr key={e.id}>
                         <td>{new Date(e.eventTime).toLocaleString()}</td>
                         <td>{e.category}</td>
                         <td>{e.action}</td>
-                        <td>
-                            <SeverityBadge severity={e.severity} />
-                        </td>
+                        <td><SeverityBadge severity={e.severity} /></td>
                         <td>{e.host}</td>
                         <td>{e.user || "-"}</td>
                         <td>{e.srcIp || "-"}</td>
@@ -93,10 +84,9 @@ export default function Events() {
                         <td>{e.message}</td>
                     </tr>
                 ))}
-
                 {filtered.length === 0 ? (
                     <tr>
-                        <td colSpan={9} style={{ padding: 16, color: "#666" }}>
+                        <td colSpan={9} style={{ color: "var(--muted)" }}>
                             No events match the current filters.
                         </td>
                     </tr>

@@ -1,14 +1,23 @@
-import Nav from "./Nav";
+import TopBar from "./TopBar";
+import SideNav from "./SideNav";
+import { useAuth } from "../auth/AuthContext";
 
-type LayoutProps = {
-    children: React.ReactNode;
-};
+export default function Layout({ children }: { children: React.ReactNode }) {
+    const { user } = useAuth();
 
-export default function Layout({ children }: LayoutProps) {
     return (
-        <div style={{ fontFamily: "system-ui, Arial", color: "#111", minHeight: "100vh" }}>
-            <Nav />
-            <main style={{ padding: 16, maxWidth: 1200, margin: "0 auto" }}>{children}</main>
+        <div className="app-shell">
+            <TopBar />
+
+            {/* se non loggato, niente sidenav e layout a due colonne */}
+            {user ? (
+                <div className="main">
+                    <SideNav />
+                    <div className="content">{children}</div>
+                </div>
+            ) : (
+                <div className="content">{children}</div>
+            )}
         </div>
     );
 }

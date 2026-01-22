@@ -1,0 +1,31 @@
+.center-page {
+    min-height: calc(100vh - var(--topbar-h));
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.login-card {
+    width: min(520px, 92vw);
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: var(--text);
+}
+
+.help {
+    color: var(--muted2);
+    font-size: 12px;
+    line-height: 1.4;
+}

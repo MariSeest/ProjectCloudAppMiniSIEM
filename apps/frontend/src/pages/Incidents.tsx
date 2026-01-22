@@ -4,11 +4,12 @@ import SeverityBadge from "../components/SeverityBadge";
 export default function Incidents() {
     return (
         <div>
-            <h1>Incidents</h1>
+            <h1 className="page-title">Incidents</h1>
+            <p className="page-subtitle">Incident workflow and investigations.</p>
 
-            <table width="100%" cellPadding={10} style={{ borderCollapse: "collapse" }}>
+            <table className="table">
                 <thead>
-                <tr style={{ background: "#f5f5f5", textAlign: "left" }}>
+                <tr>
                     <th>Created</th>
                     <th>Title</th>
                     <th>Status</th>
@@ -17,8 +18,8 @@ export default function Incidents() {
                 </tr>
                 </thead>
                 <tbody>
-                {mockIncidents.map(i => (
-                    <tr key={i.id} style={{ borderBottom: "1px solid #eee" }}>
+                {mockIncidents.map((i) => (
+                    <tr key={i.id}>
                         <td>{new Date(i.createdAt).toLocaleString()}</td>
                         <td>{i.title}</td>
                         <td><b>{i.status}</b></td>

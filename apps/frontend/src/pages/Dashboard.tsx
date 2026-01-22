@@ -9,9 +9,10 @@ export default function Dashboard() {
 
     return (
         <div>
-            <h1 style={{ marginTop: 0 }}>Dashboard</h1>
+            <h1 className="page-title">Dashboard</h1>
+            <p className="page-subtitle">Overview of ingested events, alerts and active incidents.</p>
 
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 16 }}>
+            <div className="card-grid">
                 <StatCard title="Events (last 24h)" value={mockEvents.length} subtitle="Normalized events ingested" />
                 <StatCard title="Open Alerts" value={openAlerts} subtitle="Require triage" />
                 <StatCard title="Open Incidents" value={openIncidents} subtitle="Active investigations" />

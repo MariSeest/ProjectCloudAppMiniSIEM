@@ -1,11 +1,15 @@
-type Props = { title: string; value: number; subtitle?: string };
+type StatCardProps = {
+    title: string;
+    value: number;
+    subtitle?: string;
+};
 
-export default function StatCard({ title, value, subtitle }: Props) {
+export default function StatCard({ title, value, subtitle }: StatCardProps) {
     return (
-        <div style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#fafafa", minWidth: 220 }}>
-            <div style={{ fontSize: 12, color: "#666" }}>{title}</div>
-            <div style={{ fontSize: 32, fontWeight: 700, marginTop: 6 }}>{value}</div>
-            {subtitle ? <div style={{ fontSize: 12, color: "#666", marginTop: 6 }}>{subtitle}</div> : null}
+        <div className="card stat-card">
+            <div className="stat-card__title">{title}</div>
+            <div className="stat-card__value">{value}</div>
+            {subtitle ? <div className="stat-card__subtitle">{subtitle}</div> : null}
         </div>
     );
 }
