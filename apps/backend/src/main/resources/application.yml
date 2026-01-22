@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+opencti:
+  url: ${OPENCTI_URL}
+  token: ${OPENCTI_TOKEN}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

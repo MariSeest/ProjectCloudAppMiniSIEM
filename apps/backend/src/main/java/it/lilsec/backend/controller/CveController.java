@@ -1,0 +1,26 @@
+package it.lilsec.backend.controller;
+
+import it.lilsec.backend.dto.CveDto;
+import it.lilsec.backend.service.VulnerabilityService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/cves")
+public class CveController {
+
+    private final VulnerabilityService service;
+
+    public CveController(VulnerabilityService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<CveDto> list(
+            @RequestParam(required = false) String query,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        return service.listCves(query, Math.min(limit, 100));
+    }
+}
