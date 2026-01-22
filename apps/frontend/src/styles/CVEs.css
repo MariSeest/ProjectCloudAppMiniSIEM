@@ -1,0 +1,126 @@
+.cvesPage {
+    padding: 18px 22px;
+}
+
+.cvesHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.cvesHeader h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.cvesHeader p {
+    margin: 6px 0 0 0;
+    opacity: 0.8;
+}
+
+.cvesControls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.cvesInput {
+    width: 260px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.15);
+    color: #fff;
+    outline: none;
+}
+
+.cvesSelect {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.15);
+    color: #fff;
+    outline: none;
+}
+
+.cvesButton {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 163, 255, 0.15);
+    color: #fff;
+    cursor: pointer;
+}
+
+.cvesButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cvesMeta {
+    margin: 10px 0;
+    opacity: 0.85;
+}
+
+.cvesError {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 80, 80, 0.35);
+    background: rgba(255, 80, 80, 0.1);
+}
+
+.cvesTableWrap {
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.cvesTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cvesTable th,
+.cvesTable td {
+    padding: 12px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: top;
+}
+
+.cvesTable th {
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: nowrap;
+}
+
+.desc {
+    max-width: 720px;
+    opacity: 0.9;
+}
+
+.cvesLink {
+    color: #9fd8ff;
+    text-decoration: none;
+}
+
+.cvesLink:hover {
+    text-decoration: underline;
+}
+
+.empty {
+    padding: 18px 12px;
+    text-align: center;
+    opacity: 0.75;
+}

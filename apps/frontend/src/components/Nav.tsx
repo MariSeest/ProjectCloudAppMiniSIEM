@@ -64,6 +64,10 @@ export default function Nav() {
             >
                 Incidents
             </NavLink>
+            <NavLink to="/cves" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+                CVEs
+            </NavLink>
+
         </nav>
     );
 }

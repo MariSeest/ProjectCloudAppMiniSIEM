@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import Alerts from "./pages/Alerts";
 import Incidents from "./pages/Incidents";
+import CVEs from "./pages/CVEs";
 
 export default function App() {
     return (
@@ -50,6 +51,17 @@ export default function App() {
                         </ProtectedRoute>
                     }
                 />
+
+                {/* ✅ CVEs */}
+                <Route
+                    path="/cves"
+                    element={
+                        <ProtectedRoute>
+                            <CVEs />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route
                     path="/profile"
                     element={
