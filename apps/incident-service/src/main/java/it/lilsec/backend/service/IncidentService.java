@@ -36,7 +36,7 @@ public class IncidentService {
         inc.setId(id);
         inc.setTitle(req.title());
         inc.setDescription(req.description());
-        inc.setSeverity(parseSeverity(req.severity()));
+        inc.setSeverity(req.severity());
         inc.setStatus(IncidentStatus.OPEN);
         inc.setCreatedAt(now);
         inc.setUpdatedAt(now);

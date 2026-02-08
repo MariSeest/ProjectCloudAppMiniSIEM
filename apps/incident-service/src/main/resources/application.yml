@@ -3,15 +3,14 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/minisiem?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: minisiem
-    password: minisiem
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/minisiem?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:minisiem}
+    password: ${SPRING_DATASOURCE_PASSWORD:minisiem}
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+    open-in-view: false
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+  flyway:
+    enabled: true

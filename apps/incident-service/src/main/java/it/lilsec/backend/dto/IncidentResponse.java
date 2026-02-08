@@ -1,5 +1,7 @@
 package it.lilsec.backend.dto;
 
+import it.lilsec.backend.model.Severity;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -8,7 +10,7 @@ public record IncidentResponse(
         String title,
         String description,
         Severity severity,
-        Status status,
+        String status,
         List<String> cveIds,
         Instant createdAt
 ) {}

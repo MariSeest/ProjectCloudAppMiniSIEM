@@ -1,0 +1,8 @@
+HTTP/1.1 404 Not Found
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Content-Length: 122
+
+{"timestamp":"2026-02-08T20:56:58.847+00:00","path":"/graphql","status":404,"error":"Not Found","requestId":"59aa08a4-13"}
