@@ -1,3 +1,4 @@
+/* Layout page */
 .center-page {
     min-height: calc(100vh - var(--topbar-h));
     display: grid;
@@ -9,23 +10,50 @@
     width: min(520px, 92vw);
 }
 
-.form-row {
+/* Forms */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 12px;
+}
+
+.form-row,
+.field {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin-bottom: 12px;
 }
 
-.input {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid var(--border);
+.field__label {
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+/* Inputs */
+.input,
+.select,
+.textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
     border-radius: 12px;
     padding: 10px 12px;
     color: var(--text);
+    outline: none;
+}
+
+.textarea {
+    resize: vertical;
 }
 
 .help {
     color: var(--muted2);
     font-size: 12px;
     line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }

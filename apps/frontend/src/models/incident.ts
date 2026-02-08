@@ -1,10 +1,13 @@
-export type IncidentStatus = "OPEN" | "INVESTIGATING" | "CONTAINED" | "CLOSED";
+export type IncidentStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED";
+export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
-export interface Incident {
-    id: string;
+export type Incident = {
+    id: number;
     title: string;
-    severity: number;        // 1..10
+    description?: string;
+    severity: IncidentSeverity;
     status: IncidentStatus;
-    createdAt: string;       // ISO
-    assignee?: string;
-}
+    cveIds: string[];
+    createdAt: string;
+    updatedAt: string;
+};
