@@ -1,9 +1,14 @@
-CREATE TABLE incidents (
-                           id           VARCHAR(36) PRIMARY KEY,
-                           title        VARCHAR(120) NOT NULL,
-                           description  VARCHAR(2000),
-                           severity     VARCHAR(16) NOT NULL,
-                           status       VARCHAR(16) NOT NULL,
-                           created_at   TIMESTAMP(6) NOT NULL,
-                           cve_ids_csv  VARCHAR(2000)
+create table incidents (
+                           id           varchar(20) primary key,
+                           title        varchar(120) not null,
+                           description  varchar(2000),
+                           severity     varchar(20) not null,
+                           status       varchar(20) not null,
+                           created_at   timestamptz not null default now()
+);
+
+create table incident_cves (
+                               incident_id varchar(20) not null references incidents(id) on delete cascade,
+                               cve_id      varchar(40) not null,
+                               primary key (incident_id, cve_id)
 );

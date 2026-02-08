@@ -1,15 +1,15 @@
 services:
-  mysql:
-    image: mysql:8.4
+  minisiem-postgres:
+    image: postgres:16
+    container_name: minisiem-postgres
     environment:
-      MYSQL_DATABASE: minisiem
-      MYSQL_USER: minisiem
-      MYSQL_PASSWORD: minisiem
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_DB: minisiem
+      POSTGRES_USER: minisiem
+      POSTGRES_PASSWORD: minisiem
     ports:
-      - "3306:3306"
+      - "5433:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - minisiem_pg:/var/lib/postgresql/data
 
 volumes:
-  mysql_data:
+  minisiem_pg:
