@@ -1,10 +1,14 @@
 package it.lilsec.backend.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.util.List;
 
 public record CreateIncidentRequest(
-        String title,
-        String description,
-        String severity,   // "LOW|MEDIUM|HIGH|CRITICAL|UNKNOWN"
-        List<String> cveIds
+        @NotBlank @Size(max = 120) String title,
+        @Size(max = 2000) String description,
+        @NotNull Severity severity,
+        @Size(max = 50) List<@Size(max = 40) String> cveIds
 ) {}
