@@ -31,6 +31,8 @@ dependencies {
     // ✅ Spring Cloud Gateway = WebFlux (NON WebMVC)
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
 
+
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

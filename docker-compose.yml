@@ -11,5 +11,8 @@ services:
     volumes:
       - minisiem_pg:/var/lib/postgresql/data
 
+
+
 volumes:
   minisiem_pg:
+
