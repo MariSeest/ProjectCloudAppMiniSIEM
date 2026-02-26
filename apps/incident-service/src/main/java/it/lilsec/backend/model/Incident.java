@@ -2,16 +2,17 @@ package it.lilsec.backend.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "incidents")
 public class Incident {
 
     @Id
-    @Column(length = 36)
-    private String id;
+    @Column(name = "id", nullable = false)
+    private UUID id;
 
     @Column(nullable = false, length = 120)
     private String title;
@@ -27,24 +28,24 @@ public class Incident {
     @Column(nullable = false, length = 16)
     private IncidentStatus status;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "incident_cves",
-            joinColumns = @JoinColumn(name = "incident_id")
+            joinColumns = @JoinColumn(name = "incident_id", referencedColumnName = "id")
     )
-    @Column(name = "cve_id", length = 40, nullable = false)
-    private Set<String> cveIds = new HashSet<>();
+    @Column(name = "cve_id", nullable = false, length = 40)
+    private List<String> cveIds = new ArrayList<>();
 
     public Incident() {}
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -64,6 +65,6 @@ public class Incident {
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
-    public Set<String> getCveIds() { return cveIds; }
-    public void setCveIds(Set<String> cveIds) { this.cveIds = cveIds; }
+    public List<String> getCveIds() { return cveIds; }
+    public void setCveIds(List<String> cveIds) { this.cveIds = cveIds; }
 }

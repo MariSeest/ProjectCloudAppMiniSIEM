@@ -11,8 +11,39 @@ services:
     volumes:
       - minisiem_pg:/var/lib/postgresql/data
 
+  incident-service:
+    build: ./apps/incident-service
+    container_name: incident-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://minisiem-postgres:5432/minisiem
+      SPRING_DATASOURCE_USERNAME: minisiem
+      SPRING_DATASOURCE_PASSWORD: minisiem
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+    depends_on:
+      - minisiem-postgres
+    ports:
+      - "8082:8082"
 
+  vulnerability-service:
+    build: ./apps/vulnerability-service
+    container_name: vulnerability-service
+    environment:
+      OPENCTI_URL: ${OPENCTI_URL:-http://localhost:9090/graphql}
+      OPENCTI_TOKEN: ${OPENCTI_TOKEN:-}
+    ports:
+      - "8081:8081"
+
+  gateway:
+    build: ./apps/gateway
+    container_name: gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - incident-service
+      - vulnerability-service
+    ports:
+      - "8080:8080"
 
 volumes:
   minisiem_pg:
-

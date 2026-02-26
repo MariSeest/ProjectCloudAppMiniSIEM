@@ -6,9 +6,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface IncidentRepository extends JpaRepository<Incident, String> {
+public interface IncidentRepository extends JpaRepository<Incident, UUID> {
 
-    @Query("select distinct i from Incident i join i.cveIds c where c = :cveId order by i.createdAt desc")
+    @Query("""
+        select distinct i
+        from Incident i
+        join i.cveIds c
+        where c = :cveId
+    """)
     List<Incident> findByCveId(@Param("cveId") String cveId);
 }

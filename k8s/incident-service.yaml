@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-service
+  template:
+    metadata:
+      labels:
+        app: incident-service
+    spec:
+      containers:
+        - name: incident-service
+          image: milume/minisiem-incident:1.0
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://minisiem-postgres:5432/minisiem
+            - name: SPRING_DATASOURCE_USERNAME
+              value: minisiem
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: minisiem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: incident-service
+spec:
+  selector:
+    app: incident-service
+  ports:
+    - port: 8082
+      targetPort: 8082
