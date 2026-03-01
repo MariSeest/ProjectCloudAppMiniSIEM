@@ -85,7 +85,7 @@ public class IncidentService {
 
     @Transactional(readOnly = true)
     public List<Incident> findByCveId(String cveId) {
-        String normalized = (cveId == null) ? "" : cveId.trim();
+        String normalized = cveId == null ? "" : cveId.trim();
         if (normalized.isEmpty()) return List.of();
 
         return repo.findByCveId(normalized).stream()

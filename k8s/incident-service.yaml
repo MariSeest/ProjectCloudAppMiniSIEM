@@ -14,16 +14,16 @@ spec:
     spec:
       containers:
         - name: incident-service
-          image: milume/minisiem-incident:1.0
+          image: milume/minisiem-incident:1.1
           ports:
             - containerPort: 8082
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://minisiem-postgres:5432/minisiem
+              value: "jdbc:postgresql://minisiem-postgres:5432/minisiem"
             - name: SPRING_DATASOURCE_USERNAME
-              value: minisiem
+              value: "minisiem"
             - name: SPRING_DATASOURCE_PASSWORD
-              value: minisiem
+              value: "minisiem"
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

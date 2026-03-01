@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flyway-repair-incident
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: flyway
+          image: flyway/flyway:11
+          args:
+            - -url=jdbc:postgresql://minisiem-postgres:5432/minisiem
+            - -user=minisiem
+            - -password=minisiem
+            - -schemas=public
+            - repair

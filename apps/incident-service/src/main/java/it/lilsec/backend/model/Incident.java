@@ -1,6 +1,7 @@
 package it.lilsec.backend.model;
 
 import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,5 @@ public class Incident {
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
     public List<String> getCveIds() { return cveIds; }
-    public void setCveIds(List<String> cveIds) {
-        this.cveIds = (cveIds == null) ? new ArrayList<>() : cveIds;
-    }
+    public void setCveIds(List<String> cveIds) { this.cveIds = (cveIds == null) ? new ArrayList<>() : cveIds; }
 }
