@@ -48,7 +48,7 @@ public class IncidentService {
         inc.setStatus(Status.OPEN);
         inc.setCreatedAt(now);
         inc.setUpdatedAt(now);
-        inc.setCveIds(normalizeCveIds(req.cveIds()));
+        inc.setCveIds(normalizeCveIds(req.cveIds())); // List<String>
 
         return repo.save(inc);
     }
@@ -60,13 +60,13 @@ public class IncidentService {
         if (req.description() != null) inc.setDescription(req.description());
         if (req.severity() != null) inc.setSeverity(req.severity());
         if (req.status() != null) inc.setStatus(req.status());
-        if (req.cveIds() != null) inc.setCveIds(normalizeCveIds(req.cveIds()));
+        if (req.cveIds() != null) inc.setCveIds(normalizeCveIds(req.cveIds())); // List<String>
 
         inc.setUpdatedAt(Instant.now());
         return repo.save(inc);
     }
 
-    // PATCH: aggiorna solo i campi non null
+    // ✅ PATCH
     public Incident patch(String id, IncidentPatchRequest req) {
         Incident inc = get(id);
 
@@ -74,9 +74,7 @@ public class IncidentService {
         if (req.getDescription() != null) inc.setDescription(req.getDescription());
         if (req.getSeverity() != null) inc.setSeverity(req.getSeverity());
         if (req.getStatus() != null) inc.setStatus(req.getStatus());
-
-        // se presente anche vuota => sostituisci
-        if (req.getCveIds() != null) inc.setCveIds(normalizeCveIds(req.getCveIds()));
+        if (req.getCveIds() != null) inc.setCveIds(normalizeCveIds(req.getCveIds())); // Set<String>
 
         inc.setUpdatedAt(Instant.now());
         return repo.save(inc);
@@ -96,6 +94,8 @@ public class IncidentService {
                 .toList();
     }
 
+    // ---- helpers ----
+
     private List<String> normalizeCveIds(Collection<String> cveIds) {
         if (cveIds == null) return new ArrayList<>();
         return cveIds.stream()
@@ -104,6 +104,11 @@ public class IncidentService {
                 .filter(s -> !s.isEmpty())
                 .distinct()
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    // overload comodo per List
+    private List<String> normalizeCveIds(List<String> cveIds) {
+        return normalizeCveIds((Collection<String>) cveIds);
     }
 
     private UUID parseUuid(String id) {

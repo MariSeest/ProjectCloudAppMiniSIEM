@@ -5,6 +5,7 @@ import it.lilsec.backend.dto.UpdateIncidentRequest;
 import it.lilsec.backend.dto.IncidentPatchRequest;
 import it.lilsec.backend.model.Incident;
 import it.lilsec.backend.service.IncidentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,8 +44,8 @@ public class IncidentController {
     }
 
     @PatchMapping("/{id}")
-    public Incident patch(@PathVariable String id, @RequestBody IncidentPatchRequest req) {
-        return service.patch(id, req);
+    public ResponseEntity<Incident> patch(@PathVariable String id, @RequestBody IncidentPatchRequest req) {
+        return ResponseEntity.ok(service.patch(id, req));
     }
 
     @DeleteMapping("/{id}")
