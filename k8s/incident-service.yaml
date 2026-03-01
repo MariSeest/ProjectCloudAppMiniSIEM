@@ -24,6 +24,18 @@ spec:
               value: minisiem
             - name: SPRING_DATASOURCE_PASSWORD
               value: minisiem
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8082
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8082
+            initialDelaySeconds: 40
+            periodSeconds: 15
 ---
 apiVersion: v1
 kind: Service

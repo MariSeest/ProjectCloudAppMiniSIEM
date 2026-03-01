@@ -3,10 +3,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: minisiem-postgres-pvc
 spec:
+  storageClassName: csi-cinder-work
   accessModes: ["ReadWriteOnce"]
   resources:
     requests:
-      storage: 2Gi
+      storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,7 +39,7 @@ spec:
               value: "/var/lib/postgresql/data/pgdata"
           volumeMounts:
             - name: data
-              mountPath: /var/lib/postgresql
+              mountPath: /var/lib/postgresql/data
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -55,4 +56,3 @@ spec:
     - name: pg
       port: 5432
       targetPort: 5432
-
