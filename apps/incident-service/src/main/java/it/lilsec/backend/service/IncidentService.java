@@ -1,10 +1,10 @@
 package it.lilsec.backend.service;
 
 import it.lilsec.backend.dto.CreateIncidentRequest;
-import it.lilsec.backend.dto.UpdateIncidentRequest;
 import it.lilsec.backend.dto.IncidentPatchRequest;
+import it.lilsec.backend.dto.UpdateIncidentRequest;
 import it.lilsec.backend.model.Incident;
-import it.lilsec.backend.model.Status;
+import it.lilsec.backend.model.IncidentStatus;
 import it.lilsec.backend.repository.IncidentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,10 +45,10 @@ public class IncidentService {
         inc.setTitle(req.title());
         inc.setDescription(req.description());
         inc.setSeverity(req.severity());
-        inc.setStatus(Status.OPEN);
+        inc.setStatus(IncidentStatus.OPEN);
         inc.setCreatedAt(now);
         inc.setUpdatedAt(now);
-        inc.setCveIds(normalizeCveIds(req.cveIds())); // List<String>
+        inc.setCveIds(normalizeCveIds(req.cveIds()));
 
         return repo.save(inc);
     }
@@ -60,13 +60,12 @@ public class IncidentService {
         if (req.description() != null) inc.setDescription(req.description());
         if (req.severity() != null) inc.setSeverity(req.severity());
         if (req.status() != null) inc.setStatus(req.status());
-        if (req.cveIds() != null) inc.setCveIds(normalizeCveIds(req.cveIds())); // List<String>
+        if (req.cveIds() != null) inc.setCveIds(normalizeCveIds(req.cveIds()));
 
         inc.setUpdatedAt(Instant.now());
         return repo.save(inc);
     }
 
-    // ✅ PATCH
     public Incident patch(String id, IncidentPatchRequest req) {
         Incident inc = get(id);
 
@@ -74,7 +73,7 @@ public class IncidentService {
         if (req.getDescription() != null) inc.setDescription(req.getDescription());
         if (req.getSeverity() != null) inc.setSeverity(req.getSeverity());
         if (req.getStatus() != null) inc.setStatus(req.getStatus());
-        if (req.getCveIds() != null) inc.setCveIds(normalizeCveIds(req.getCveIds())); // Set<String>
+        if (req.getCveIds() != null) inc.setCveIds(normalizeCveIds(req.getCveIds()));
 
         inc.setUpdatedAt(Instant.now());
         return repo.save(inc);
@@ -86,7 +85,7 @@ public class IncidentService {
 
     @Transactional(readOnly = true)
     public List<Incident> findByCveId(String cveId) {
-        String normalized = cveId == null ? "" : cveId.trim();
+        String normalized = (cveId == null) ? "" : cveId.trim();
         if (normalized.isEmpty()) return List.of();
 
         return repo.findByCveId(normalized).stream()
@@ -104,11 +103,6 @@ public class IncidentService {
                 .filter(s -> !s.isEmpty())
                 .distinct()
                 .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    // overload comodo per List
-    private List<String> normalizeCveIds(List<String> cveIds) {
-        return normalizeCveIds((Collection<String>) cveIds);
     }
 
     private UUID parseUuid(String id) {

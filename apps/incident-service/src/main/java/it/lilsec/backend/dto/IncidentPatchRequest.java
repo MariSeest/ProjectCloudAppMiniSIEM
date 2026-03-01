@@ -1,17 +1,17 @@
 package it.lilsec.backend.dto;
 
+import it.lilsec.backend.model.IncidentStatus;
 import it.lilsec.backend.model.Severity;
-import it.lilsec.backend.model.Status;
 
-import java.util.Set;
+import java.util.List;
 
 public class IncidentPatchRequest {
 
     private String title;
     private String description;
     private Severity severity;
-    private Status status;
-    private Set<String> cveIds;
+    private IncidentStatus status;
+    private List<String> cveIds;
 
     public IncidentPatchRequest() {}
 
@@ -24,9 +24,9 @@ public class IncidentPatchRequest {
     public Severity getSeverity() { return severity; }
     public void setSeverity(Severity severity) { this.severity = severity; }
 
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public IncidentStatus getStatus() { return status; }
+    public void setStatus(IncidentStatus status) { this.status = status; }
 
-    public Set<String> getCveIds() { return cveIds; }
-    public void setCveIds(Set<String> cveIds) { this.cveIds = cveIds; }
+    public List<String> getCveIds() { return cveIds; }
+    public void setCveIds(List<String> cveIds) { this.cveIds = cveIds; }
 }

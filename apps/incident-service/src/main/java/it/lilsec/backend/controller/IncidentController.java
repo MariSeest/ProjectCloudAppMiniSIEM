@@ -1,8 +1,8 @@
 package it.lilsec.backend.controller;
 
 import it.lilsec.backend.dto.CreateIncidentRequest;
-import it.lilsec.backend.dto.UpdateIncidentRequest;
 import it.lilsec.backend.dto.IncidentPatchRequest;
+import it.lilsec.backend.dto.UpdateIncidentRequest;
 import it.lilsec.backend.model.Incident;
 import it.lilsec.backend.service.IncidentService;
 import org.springframework.http.ResponseEntity;

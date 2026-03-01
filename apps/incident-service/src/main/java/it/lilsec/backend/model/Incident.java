@@ -34,7 +34,7 @@ public class Incident {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-  @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "incident_cves",
             joinColumns = @JoinColumn(name = "incident_id", referencedColumnName = "id")
@@ -66,5 +66,7 @@ public class Incident {
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
     public List<String> getCveIds() { return cveIds; }
-    public void setCveIds(List<String> cveIds) { this.cveIds = cveIds; }
+    public void setCveIds(List<String> cveIds) {
+        this.cveIds = (cveIds == null) ? new ArrayList<>() : cveIds;
+    }
 }
