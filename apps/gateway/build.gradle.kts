@@ -30,7 +30,6 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.cloud:spring-cloud-starter-gateway")
   implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("io.projectreactor:reactor-test")
 }

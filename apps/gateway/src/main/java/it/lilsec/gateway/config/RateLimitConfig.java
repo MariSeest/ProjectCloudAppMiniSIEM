@@ -11,19 +11,24 @@ public class RateLimitConfig {
     @Bean
     public KeyResolver ipKeyResolver() {
         return exchange -> {
-            // prova prima X-Forwarded-For, poi remote address
-            String xff = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
-            if (xff != null && !xff.isBlank()) {
-                // prendi il primo IP nella lista
-                String ip = xff.split(",")[0].trim();
-                return Mono.just(ip);
+
+            // se esiste X-Forwarded-For (ingress / proxy)
+            String forwarded = exchange.getRequest()
+                    .getHeaders()
+                    .getFirst("X-Forwarded-For");
+
+            if (forwarded != null && !forwarded.isEmpty()) {
+                return Mono.just(forwarded.split(",")[0].trim());
             }
 
-            var addr = exchange.getRequest().getRemoteAddress();
-            String ip = (addr != null && addr.getAddress() != null)
-                    ? addr.getAddress().getHostAddress()
-                    : "unknown";
-            return Mono.just(ip);
+            // fallback: IP diretto
+            var remoteAddress = exchange.getRequest().getRemoteAddress();
+
+            if (remoteAddress != null && remoteAddress.getAddress() != null) {
+                return Mono.just(remoteAddress.getAddress().getHostAddress());
+            }
+
+            return Mono.just("unknown");
         };
     }
 }
