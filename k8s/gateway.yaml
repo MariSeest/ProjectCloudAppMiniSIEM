@@ -14,26 +14,17 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: milume/minisiem-gateway:1.0
+          image: milume/minisiem-gateway:1.1
           ports:
             - containerPort: 8080
-          env:
-            - name: SERVER_ADDRESS
-              value: "0.0.0.0"
-
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_0_ID
-              value: "incident"
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
-              value: "http://incident-service:8082"
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0
-              value: "Path=/api/incidents/**"
-
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_1_ID
-              value: "vulnerability"
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_1_URI
-              value: "http://vulnerability-service:8081"
-            - name: SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0
-              value: "Path=/api/vulnerabilities/**"
+          volumeMounts:
+            - name: gateway-config
+              mountPath: /config/application.yml
+              subPath: application.yml
+      volumes:
+        - name: gateway-config
+          configMap:
+            name: gateway-config
 ---
 apiVersion: v1
 kind: Service
