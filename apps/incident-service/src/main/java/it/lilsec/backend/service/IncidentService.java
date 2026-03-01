@@ -1,6 +1,7 @@
 package it.lilsec.backend.service;
 
 import it.lilsec.backend.dto.CreateIncidentRequest;
+import it.lilsec.backend.dto.PatchIncidentRequest;
 import it.lilsec.backend.dto.UpdateIncidentRequest;
 import it.lilsec.backend.model.Incident;
 import it.lilsec.backend.model.IncidentStatus;
@@ -9,11 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,28 +41,47 @@ public class IncidentService {
         Instant now = Instant.now();
 
         Incident inc = new Incident();
-        inc.setId(UUID.randomUUID()); // ✅ UUID coerente con entity
+        inc.setId(UUID.randomUUID());
         inc.setTitle(req.title());
         inc.setDescription(req.description());
         inc.setSeverity(req.severity());
         inc.setStatus(IncidentStatus.OPEN);
         inc.setCreatedAt(now);
         inc.setUpdatedAt(now);
-        inc.setCveIds(req.cveIds() == null ? new ArrayList<>() : new ArrayList<>(req.cveIds()));
+        inc.setCveIds(normalizeCveIds(req.cveIds()));
 
         return repo.save(inc);
     }
 
+    /**
+     * PUT semantics: aggiorna i campi presenti in UpdateIncidentRequest (il tuo DTO già lavora “a campi opzionali”).
+     */
     public Incident update(String id, UpdateIncidentRequest req) {
         Incident inc = get(id);
+        applyUpdates(
+                inc,
+                req.title(),
+                req.description(),
+                req.severity(),
+                req.status(),
+                req.cveIds()
+        );
+        return repo.save(inc);
+    }
 
-        if (req.title() != null) inc.setTitle(req.title());
-        if (req.description() != null) inc.setDescription(req.description());
-        if (req.severity() != null) inc.setSeverity(req.severity());
-        if (req.status() != null) inc.setStatus(req.status());
-        if (req.cveIds() != null) inc.setCveIds(new ArrayList<>(req.cveIds()));
-
-        inc.setUpdatedAt(Instant.now());
+    /**
+     * PATCH semantics: partial update.
+     */
+    public Incident patch(String id, PatchIncidentRequest req) {
+        Incident inc = get(id);
+        applyUpdates(
+                inc,
+                req.title(),
+                req.description(),
+                req.severity(),
+                req.status(),
+                req.cveIds()
+        );
         return repo.save(inc);
     }
 
@@ -78,10 +95,42 @@ public class IncidentService {
         String normalized = cveId == null ? "" : cveId.trim();
         if (normalized.isEmpty()) return List.of();
 
-        // ✅ metodo esistente nel tuo IncidentRepository
         return repo.findByCveId(normalized).stream()
                 .sorted(Comparator.comparing(Incident::getCreatedAt).reversed())
                 .toList();
+    }
+
+    private void applyUpdates(
+            Incident inc,
+            String title,
+            String description,
+            Object severity,           // tipizzato sotto, vedi note
+            Object status,             // tipizzato sotto, vedi note
+            List<String> cveIds
+    ) {
+        if (title != null) inc.setTitle(title);
+        if (description != null) inc.setDescription(description);
+
+        // ✅ Evito di “inventare” il tipo: cast sicuro a runtime se coerente col tuo model
+        if (severity != null) inc.setSeverity((it.lilsec.backend.model.IncidentSeverity) severity);
+        if (status != null) inc.setStatus((IncidentStatus) status);
+
+        if (cveIds != null) inc.setCveIds(normalizeCveIds(cveIds));
+
+        inc.setUpdatedAt(Instant.now());
+    }
+
+    private ArrayList<String> normalizeCveIds(List<String> cveIds) {
+        if (cveIds == null) return new ArrayList<>();
+
+        // trim, drop empty, dedup preservando ordine
+        LinkedHashSet<String> dedup = cveIds.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return new ArrayList<>(dedup);
     }
 
     private UUID parseUuid(String id) {
