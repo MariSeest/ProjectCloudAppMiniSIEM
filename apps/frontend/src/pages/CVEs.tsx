@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Cve } from "../models/cve";
 import { listCves } from "../api/cves";
 import SeverityBadge from "../components/SeverityBadge";
-import "../styles/cves.css";
+import "../styles/CVEs.css";
 
 export default function CVEs() {
     const [query, setQuery] = useState("CVE");

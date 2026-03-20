@@ -5,19 +5,23 @@ const iso = (d: Date): string => d.toISOString();
 
 export const mockIncidents: Incident[] = [
     {
-        id: "i-3001",
+        id: 3001,
         title: "Domain compromise suspected",
-        severity: 9,
-        status: "INVESTIGATING",
+        description: "Potential domain-wide compromise under investigation.",
+        severity: "CRITICAL",
+        status: "IN_PROGRESS",
+        cveIds: ["CVE-2024-3400"],
         createdAt: iso(new Date(now.getTime() - 6 * 60 * 60 * 1000)),
-        assignee: "SOC-1",
+        updatedAt: iso(new Date(now.getTime() - 5 * 60 * 60 * 1000)),
     },
     {
-        id: "i-3002",
+        id: 3002,
         title: "Suspicious outbound traffic",
-        severity: 6,
+        description: "Unusual outbound communication detected from an internal host.",
+        severity: "HIGH",
         status: "OPEN",
+        cveIds: ["CVE-2023-4966"],
         createdAt: iso(new Date(now.getTime() - 2 * 60 * 60 * 1000)),
-        assignee: "SOC-2",
+        updatedAt: iso(new Date(now.getTime() - 90 * 60 * 1000)),
     },
 ];

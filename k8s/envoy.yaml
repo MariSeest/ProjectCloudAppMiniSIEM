@@ -1,0 +1,59 @@
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 80
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_service
+                      domains: ["*"]
+                      routes:
+                        # ✅ FIX: Tutte le richieste sotto /group-5/ vengono gestite dal frontend
+                        # I file statici con estensione vengono serviti direttamente
+                        - match:
+                            prefix: "/group-5/"
+                            headers:
+                              - name: ":path"
+                                string_match:
+                                  safe_regex:
+                                    regex: "^/group-5/.*\\.(js|css|png|jpg|svg|ico|woff2?)$"
+                          route:
+                            cluster: frontend_cluster
+
+                        # ✅ FIX: Tutte le altre rotte SPA → index.html
+                        - match:
+                            prefix: "/group-5/"
+                          route:
+                            cluster: frontend_cluster
+                          # Rewrite per servire sempre index.html per le rotte React
+                          # (configura il cluster per fare questo)
+
+                http_filters:
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  clusters:
+    - name: frontend_cluster
+      connect_timeout: 5s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: frontend_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      # Indirizzo del server che serve i file statici (es. nginx interno)
+                      address: frontend-service
+                      port_value: 80

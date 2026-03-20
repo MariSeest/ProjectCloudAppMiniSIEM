@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gateway-config
+  namespace: group-5
 data:
   application.yml: |
     server:
@@ -19,7 +20,7 @@ data:
       cloud:
         gateway:
           routes:
-            - id: incident
+            - id: incident-service
               uri: http://incident-service:8082
               predicates:
                 - Path=/api/incidents/**
@@ -31,10 +32,10 @@ data:
                     redis-rate-limiter.burstCapacity: 10
                     redis-rate-limiter.requestedTokens: 1
 
-            - id: vulnerability
+            - id: vulnerability-service
               uri: http://vulnerability-service:8081
               predicates:
-                - Path=/api/vulnerabilities/**
+                - Path=/api/cves/**
               filters:
                 - name: RequestRateLimiter
                   args:

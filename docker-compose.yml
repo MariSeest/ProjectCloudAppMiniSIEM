@@ -2,6 +2,7 @@ services:
   minisiem-postgres:
     image: postgres:16
     container_name: minisiem-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: minisiem
       POSTGRES_USER: minisiem
@@ -10,10 +11,17 @@ services:
       - "5433:5432"
     volumes:
       - minisiem_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U minisiem -d minisiem"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   incident-service:
-    build: ./apps/incident-service
+    build:
+      context: ./apps/incident-service
     container_name: incident-service
+    restart: unless-stopped
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://minisiem-postgres:5432/minisiem
       SPRING_DATASOURCE_USERNAME: minisiem
@@ -21,22 +29,29 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_FLYWAY_ENABLED: "true"
     depends_on:
-      - minisiem-postgres
+      minisiem-postgres:
+        condition: service_healthy
     ports:
       - "8082:8082"
 
   vulnerability-service:
-    build: ./apps/vulnerability-service
+    build:
+      context: ./apps/vulnerability-service
     container_name: vulnerability-service
+    restart: unless-stopped
     environment:
-      OPENCTI_URL: ${OPENCTI_URL:-http://localhost:9090/graphql}
+      OPENCTI_URL: ${OPENCTI_URL:-http://host.docker.internal:9090/graphql}
       OPENCTI_TOKEN: ${OPENCTI_TOKEN:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8081:8081"
 
   gateway:
-    build: ./apps/gateway
+    build:
+      context: ./apps/gateway
     container_name: gateway
+    restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
@@ -44,6 +59,18 @@ services:
       - vulnerability-service
     ports:
       - "8080:8080"
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: frontend
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    ports:
+      - "3000:80"
 
 volumes:
   minisiem_pg:
