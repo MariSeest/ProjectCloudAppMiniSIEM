@@ -1,36 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;900&display=swap');
+
 :root {
-    --bg: #071329;
-    --panel: rgba(255, 255, 255, 0.06);
-    --panel-strong: rgba(255, 255, 255, 0.10);
-    --border: rgba(255, 255, 255, 0.12);
-    --text: rgba(255, 255, 255, 0.92);
-    --muted: rgba(255, 255, 255, 0.70);
-    --muted2: rgba(255, 255, 255, 0.55);
+    --bg: #060d1a;
+    --panel: rgba(255, 255, 255, 0.05);
+    --panel-strong: rgba(255, 255, 255, 0.09);
+    --border: rgba(255, 255, 255, 0.10);
+    --border-accent: rgba(58, 169, 255, 0.30);
+    --text: rgba(255, 255, 255, 0.93);
+    --muted: rgba(255, 255, 255, 0.60);
+    --muted2: rgba(255, 255, 255, 0.40);
     --accent: #3aa9ff;
     --accent2: #7c4dff;
+    --accent-glow: rgba(58, 169, 255, 0.25);
+    --danger: #ff4d6d;
+    --success: #00e5a0;
+    --warning: #ffb347;
 
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    --shadow-accent: 0 0 24px rgba(58, 169, 255, 0.18);
 
     --radius: 14px;
     --radius-sm: 10px;
+    --radius-xs: 7px;
 
-    --topbar-h: 64px;
-    --sidenav-w: 240px;
+    --topbar-h: 62px;
+    --sidenav-w: 220px;
 
-    --font: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Rajdhani', system-ui, sans-serif;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
+html, body, #root {
     height: 100%;
-    margin: 0;
-    padding: 0;
-    background: radial-gradient(1200px 600px at 20% 0%, rgba(58,169,255,0.18), transparent 55%),
-    radial-gradient(900px 500px at 90% 10%, rgba(124,77,255,0.16), transparent 60%),
-    var(--bg);
+    width: 100%;
+}
+
+body {
+    background: var(--bg);
     color: var(--text);
     font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
-a { color: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(58,169,255,0.35); }

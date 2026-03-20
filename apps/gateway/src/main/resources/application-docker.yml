@@ -1,4 +1,15 @@
+server:
+  port: 8080
+
 spring:
+  application:
+    name: api-gateway
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
   cloud:
     gateway:
       routes:
@@ -15,3 +26,9 @@ spring:
             - Path=/api/incidents/**
           filters:
             - RemoveRequestHeader=Origin
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

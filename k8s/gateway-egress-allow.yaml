@@ -1,3 +1,4 @@
+# NetworkPolicy per il gateway: permette egress verso redis, incident-service e vulnerability-service
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -24,3 +25,36 @@ spec:
       ports:
         - protocol: TCP
           port: 8082
+    # ✅ FIX: aggiunta rotta verso vulnerability-service
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vulnerability-service
+      ports:
+        - protocol: TCP
+          port: 8081
+---
+# ✅ NUOVO: NetworkPolicy per vulnerability-service: permette egress verso OpenCTI esterno
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-vulnerability-egress
+  namespace: group-5
+spec:
+  podSelector:
+    matchLabels:
+      app: vulnerability-service
+  policyTypes:
+    - Egress
+  egress:
+    # Permette tutto il traffico esterno (verso OpenCTI su 172.16.1.23:9999)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 9999
+    # Permette anche DNS
+    - ports:
+        - protocol: UDP
+          port: 53

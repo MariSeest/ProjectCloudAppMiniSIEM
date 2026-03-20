@@ -4,11 +4,12 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import Alerts from "./pages/Alerts";
 import Incidents from "./pages/Incidents";
+import IncidentDetail from "./pages/IncidentDetail.tsx";
+import CorrelationWorkspace from "./pages/CorrelationWorkspace.tsx";
 import CVEs from "./pages/CVEs";
 
 export default function App() {
@@ -19,60 +20,17 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
 
                 {/* protected */}
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+                <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+                <Route path="/incidents" element={<ProtectedRoute><Incidents /></ProtectedRoute>} />
 
-                <Route
-                    path="/events"
-                    element={
-                        <ProtectedRoute>
-                            <Events />
-                        </ProtectedRoute>
-                    }
-                />
+                {/* ✅ NUOVE: dettaglio incident e workspace correlazione */}
+                <Route path="/incidents/:id" element={<ProtectedRoute><IncidentDetail /></ProtectedRoute>} />
+                <Route path="/correlate" element={<ProtectedRoute><CorrelationWorkspace /></ProtectedRoute>} />
 
-                <Route
-                    path="/alerts"
-                    element={
-                        <ProtectedRoute>
-                            <Alerts />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/incidents"
-                    element={
-                        <ProtectedRoute>
-                            <Incidents />
-                        </ProtectedRoute>
-                    }
-                />
-
-                {/* ✅ CVEs */}
-                <Route
-                    path="/cves"
-                    element={
-                        <ProtectedRoute>
-                            <CVEs />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/profile"
-                    element={
-                        <ProtectedRoute>
-                            <Profile />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/cves" element={<ProtectedRoute><CVEs /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
                 {/* fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
