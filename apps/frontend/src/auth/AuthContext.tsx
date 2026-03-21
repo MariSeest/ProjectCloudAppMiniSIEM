@@ -1,39 +1,94 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useState, useEffect } from 'react'
+import type { ReactNode } from 'react'
+import api from '../api/client'
 
-export type AppUser = {
-    name: string;
-    role: string;
-    email: string;
-};
-
-type AuthContextValue = {
-    user: AppUser | null;
-    login: (email: string) => void;
-    logout: () => void;
-};
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<AppUser | null>(null);
-
-    const login = (email: string) => {
-        // mock user (in futuro: Auth0 user profile)
-        setUser({
-            name: "Luisa Mele",
-            role: "SOC Analyst",
-            email,
-        });
-    };
-
-    const logout = () => setUser(null);
-
-    const value = useMemo(() => ({ user, login, logout }), [user]);
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+interface AuthUser {
+    userId: string
+    username: string
+    fullName: string
+    role: string
+    tenantId: string | null
+    tenantName: string | null
+    token: string
 }
 
-export function useAuth(): AuthContextValue {
-    const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-    return ctx;
+interface AuthCtx {
+    user: AuthUser | null
+    loading: boolean
+    login: (username: string, password: string) => Promise<void>
+    logout: () => void
+    activeTenantId: string | null
+    setActiveTenantId: (id: string) => void
+}
+
+const Ctx = createContext<AuthCtx | null>(null)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<AuthUser | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [activeTenantId, setActiveTenantId] = useState<string | null>(null)
+
+    useEffect(() => {
+        const stored = localStorage.getItem('minisiem_token')
+        if (stored) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${stored}`
+            api.get('/auth/me')
+                .then((r) => {
+                    const d = r.data
+                    setUser({
+                        userId: d.id,
+                        username: d.username,
+                        fullName: d.fullName,
+                        role: d.role,
+                        tenantId: d.tenantId,
+                        tenantName: d.tenantName,
+                        token: stored,
+                    })
+                    setActiveTenantId(d.tenantId)
+                })
+                .catch(() => {
+                    localStorage.removeItem('minisiem_token')
+                    delete api.defaults.headers.common['Authorization']
+                })
+                .finally(() => setLoading(false))
+        } else {
+            setLoading(false)
+        }
+    }, [])
+
+    async function login(username: string, password: string) {
+        const r = await api.post('/auth/login', { username, password })
+        const d = r.data
+        localStorage.setItem('minisiem_token', d.token)
+        api.defaults.headers.common['Authorization'] = `Bearer ${d.token}`
+        setUser({
+            userId: d.userId,
+            username: d.username,
+            fullName: d.fullName,
+            role: d.role,
+            tenantId: d.tenantId,
+            tenantName: d.tenantName,
+            token: d.token,
+        })
+        setActiveTenantId(d.tenantId)
+    }
+
+    function logout() {
+        localStorage.removeItem('minisiem_token')
+        delete api.defaults.headers.common['Authorization']
+        setUser(null)
+        setActiveTenantId(null)
+    }
+
+    return (
+        <Ctx.Provider value={{ user, loading, login, logout, activeTenantId, setActiveTenantId }}>
+            {children}
+        </Ctx.Provider>
+    )
+}
+
+export function useAuth() {
+    const ctx = useContext(Ctx)
+    if (!ctx) throw new Error('useAuth must be inside AuthProvider')
+    return ctx
 }

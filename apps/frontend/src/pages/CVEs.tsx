@@ -1,119 +1,95 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Cve } from "../models/cve";
-import { listCves } from "../api/cves";
-import SeverityBadge from "../components/SeverityBadge";
-import "../styles/CVEs.css";
+import { useState } from 'react'
+import { cvesApi } from '../api'
 
 export default function CVEs() {
-    const [query, setQuery] = useState("CVE");
-    const [limit, setLimit] = useState<number>(10);
+    const [query, setQuery] = useState('')
+    const [results, setResults] = useState<any[]>([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [total, setTotal] = useState(0)
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [items, setItems] = useState<Cve[]>([]);
-
-    async function load() {
+    async function search() {
+        if (!query.trim()) return
+        setLoading(true); setError('')
         try {
-            setLoading(true);
-            setError(null);
-            const data = await listCves({ query, limit });
-            setItems(data);
-        } catch (e: any) {
-            setError(e?.message ?? "Failed to load CVEs");
-        } finally {
-            setLoading(false);
-        }
+            const data = await cvesApi.search(query)
+            setResults(data.vulnerabilities || [])
+            setTotal(data.totalResults || 0)
+        } catch { setError('NVD API error. Try again.') }
+        finally { setLoading(false) }
     }
 
-    useEffect(() => {
-        (async () => {
-            await load();
-        })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const count = useMemo(() => items.length, [items]);
-
     return (
-        <div className="cvesPage">
-            <div className="cvesHeader">
+        <div className="page">
+            <div className="page-header">
                 <div>
-                    <h1>CVEs</h1>
-                    <p>Search vulnerabilities from OpenCTI via backend.</p>
-                </div>
-
-                <div className="cvesControls">
-                    <input
-                        className="cvesInput"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search (e.g., CVE-2024)"
-                    />
-
-                    <select
-                        className="cvesSelect"
-                        value={limit}
-                        onChange={(e) => setLimit(Number(e.target.value) || 10)}
-                    >
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={20}>20</option>
-                    </select>
-
-                    <button className="cvesButton" onClick={() => void load()} disabled={loading}>
-                        {loading ? "Loading..." : "Search"}
-                    </button>
+                    <h1 className="page-title">CVE Search</h1>
+                    <p className="page-subtitle">Search NIST NVD National Vulnerability Database</p>
                 </div>
             </div>
 
-            {error && <div className="cvesError">{error}</div>}
-
-            <div className="cvesMeta">
-                <span>Results: {count}</span>
+            <div style={{ display: 'flex', gap: 10 }}>
+                <input className="input" style={{ flex: 1 }} value={query}
+                       onChange={e => setQuery(e.target.value)}
+                       onKeyDown={e => e.key === 'Enter' && search()}
+                       placeholder="Search CVEs e.g. log4j, apache, CVE-2024-..." />
+                <button className="btn btn-primary" onClick={search} disabled={loading || !query.trim()}>
+                    {loading ? 'Searching…' : '🔍 Search'}
+                </button>
             </div>
 
-            <div className="cvesTableWrap">
-                <table className="cvesTable">
-                    <thead>
-                    <tr>
-                        <th>CVE</th>
-                        <th>Severity</th>
-                        <th>Score</th>
-                        <th>Description</th>
-                        <th>External</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {items.map((c) => (
-                        <tr key={c.cveId}>
-                            <td className="mono">{c.cveId}</td>
-                            <td>
-                                <SeverityBadge severity={c.severity} />
-                            </td>
-                            <td className="mono">{c.score ?? "-"}</td>
-                            <td className="desc">{c.description || "-"}</td>
-                            <td>
-                                {c.externalUrl ? (
-                                    <a className="cvesLink" href={c.externalUrl} target="_blank" rel="noreferrer">
-                                        Open
-                                    </a>
-                                ) : (
-                                    "-"
-                                )}
-                            </td>
-                        </tr>
-                    ))}
+            {error && <div className="alert-msg alert-msg--error">{error}</div>}
+            {total > 0 && <p style={{ fontSize: 13, color: 'var(--muted)' }}>{total} results found, showing first 20</p>}
 
-                    {!loading && items.length === 0 && (
+            {results.length > 0 && (
+                <div className="card">
+                    <div className="card-head">
+                        <span className="card-title">CVE Results</span>
+                        <span className="card-count">{results.length} shown</span>
+                    </div>
+                    <table className="data-table">
+                        <thead>
                         <tr>
-                            <td colSpan={5} className="empty">
-                                No results.
-                            </td>
+                            <th style={{ width: 160 }}>CVE ID</th>
+                            <th style={{ width: 100 }}>Severity</th>
+                            <th style={{ width: 60 }}>Score</th>
+                            <th>Description</th>
+                            <th style={{ width: 100 }}>Published</th>
                         </tr>
-                    )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        {results.map((r: any) => {
+                            const cve = r.cve
+                            const metrics = cve.metrics?.cvssMetricV31?.[0] || cve.metrics?.cvssMetricV30?.[0] || cve.metrics?.cvssMetricV2?.[0]
+                            const score = metrics?.cvssData?.baseScore
+                            const severity = metrics?.cvssData?.baseSeverity || (score >= 9 ? 'CRITICAL' : score >= 7 ? 'HIGH' : score >= 4 ? 'MEDIUM' : 'LOW')
+                            const desc = cve.descriptions?.find((d: any) => d.lang === 'en')?.value || '—'
+                            return (
+                                <tr key={cve.id}>
+                                    <td>
+                                        <a className="tag" href={`https://nvd.nist.gov/vuln/detail/${cve.id}`} target="_blank" rel="noreferrer">
+                                            {cve.id}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {severity && <span className={`badge badge-${severity.toLowerCase()}`}>{severity}</span>}
+                                    </td>
+                                    <td style={{ fontWeight: 700, color: score >= 9 ? 'var(--danger)' : score >= 7 ? 'var(--warning)' : 'var(--success)' }}>
+                                        {score ?? '—'}
+                                    </td>
+                                    <td style={{ color: 'var(--muted)', fontSize: 12, maxWidth: 440 }}>{desc}</td>
+                                    <td className="mono" style={{ fontSize: 11 }}>{cve.published?.slice(0, 10)}</td>
+                                </tr>
+                            )
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {!loading && results.length === 0 && query && !error && (
+                <div className="empty-state"><div className="empty-state__icon">🔍</div>No results for "{query}"</div>
+            )}
         </div>
-    );
+    )
 }
