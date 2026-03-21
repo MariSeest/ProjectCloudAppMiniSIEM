@@ -6,6 +6,8 @@ interface AuthUser {
     userId: string
     username: string
     fullName: string
+    name: string
+    email: string
     role: string
     tenantId: string | null
     tenantName: string | null
@@ -39,6 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         userId: d.id,
                         username: d.username,
                         fullName: d.fullName,
+                        name: d.fullName || d.username,
+                        email: d.email || '',
                         role: d.role,
                         tenantId: d.tenantId,
                         tenantName: d.tenantName,
@@ -65,6 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             userId: d.userId,
             username: d.username,
             fullName: d.fullName,
+            name: d.fullName || d.username,
+            email: d.email || '',
             role: d.role,
             tenantId: d.tenantId,
             tenantName: d.tenantName,

@@ -1,20 +1,17 @@
-import type { Incident } from "../models/incident";
-import { apiFetch } from "./client";
+import type { Incident } from '../models/incident'
+import api from './client'
 
 export type CreateIncidentPayload = {
-    title: string;
-    description?: string;
-    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-    cveIds?: string[];
-};
+    title: string
+    description?: string
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+    cveIds?: string[]
+}
 
 export function listIncidents(): Promise<Incident[]> {
-    return apiFetch<Incident[]>("/api/incidents");
+    return api.get<Incident[]>('/incidents').then((r) => r.data)
 }
 
 export function createIncident(payload: CreateIncidentPayload): Promise<Incident> {
-    return apiFetch<Incident>("/api/incidents", {
-        method: "POST",
-        body: JSON.stringify(payload),
-    });
+    return api.post<Incident>('/incidents', payload).then((r) => r.data)
 }
