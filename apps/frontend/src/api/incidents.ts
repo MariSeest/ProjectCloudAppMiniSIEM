@@ -8,10 +8,10 @@ export type CreateIncidentPayload = {
     cveIds?: string[]
 }
 
-export function listIncidents(): Promise<Incident[]> {
+export async function listIncidents(): Promise<Incident[]> {
     return api.get<Incident[]>('/incidents').then((r) => r.data)
 }
 
-export function createIncident(payload: CreateIncidentPayload): Promise<Incident> {
+export async function createIncident(payload: CreateIncidentPayload): Promise<Incident> {
     return api.post<Incident>('/incidents', payload).then((r) => r.data)
 }

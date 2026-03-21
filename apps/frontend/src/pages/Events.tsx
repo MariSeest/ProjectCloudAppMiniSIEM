@@ -12,11 +12,15 @@ export default function Events() {
 
     async function load(p = 0) {
         setLoading(true)
-        try { setData(await eventsApi.list(p, 50)); setPage(p) }
-        finally { setLoading(false) }
+        try {
+            setData(await eventsApi.list(p, 50))
+            setPage(p)
+        } finally {
+            setLoading(false)
+        }
     }
 
-    useEffect(() => { load() }, [])
+    useEffect(() => { void load() }, [])
 
     const items = (data?.content || []).filter((e: any) =>
         !filter ||
@@ -40,9 +44,9 @@ export default function Events() {
                     style={{ width: 300 }}
                     placeholder="🔍 Filter by title, source, description…"
                     value={filter}
-                    onChange={e => setFilter(e.target.value)}
+                    onChange={(e) => setFilter(e.target.value)}
                 />
-                <button className="btn btn-sm" onClick={() => load(0)} disabled={loading}>↻ Refresh</button>
+                <button className="btn btn-sm" onClick={() => void load(0)} disabled={loading}>↻ Refresh</button>
                 <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--muted2)' }}>
           {data?.totalElements ?? 0} total events
         </span>
@@ -87,9 +91,9 @@ export default function Events() {
 
                 {data && data.totalPages > 1 && (
                     <div style={{ display: 'flex', gap: 8, padding: '12px 18px', borderTop: '1px solid var(--border)', justifyContent: 'center' }}>
-                        <button className="btn btn-sm" disabled={page === 0} onClick={() => load(page - 1)}>← Prev</button>
+                        <button className="btn btn-sm" disabled={page === 0} onClick={() => void load(page - 1)}>← Prev</button>
                         <span style={{ padding: '5px 12px', fontSize: 13, color: 'var(--muted)' }}>Page {page + 1} / {data.totalPages}</span>
-                        <button className="btn btn-sm" disabled={page >= data.totalPages - 1} onClick={() => load(page + 1)}>Next →</button>
+                        <button className="btn btn-sm" disabled={page >= data.totalPages - 1} onClick={() => void load(page + 1)}>Next →</button>
                     </div>
                 )}
             </div>
