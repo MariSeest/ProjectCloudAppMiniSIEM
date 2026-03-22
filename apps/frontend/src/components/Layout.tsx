@@ -51,7 +51,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 onChange={(e) => setActiveTenantId(e.target.value)}
                             >
                                 <option value="00000000-0000-0000-0000-000000000001">Admin Tenant</option>
-                                <option value="00000000-0000-0000-0000-000000000002">Satremar</option>
+                                <option value="00000000-0000-0000-0000-000000000002">Azienda Cliente</option>
                             </select>
                         </div>
                     )}

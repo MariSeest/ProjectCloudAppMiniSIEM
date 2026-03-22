@@ -4,14 +4,19 @@ server:
 spring:
   application:
     name: api-gateway
-
   data:
     redis:
       host: redis
       port: 6379
-
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: ["*"]
+            allowedMethods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"]
+            allowedHeaders: ["*"]
+            allowCredentials: true
       routes:
         - id: vulnerability-service
           uri: http://vulnerability-service:8081
@@ -23,7 +28,14 @@ spring:
         - id: incident-service
           uri: http://incident-service:8082
           predicates:
-            - Path=/api/incidents/**
+            - Path=/api/incidents/**,/api/correlation/**
+          filters:
+            - RemoveRequestHeader=Origin
+
+        - id: siem-service
+          uri: http://siem-service:8083
+          predicates:
+            - Path=/api/auth/**,/api/users/**,/api/dashboard/**,/api/acn/**,/api/audit/**,/api/falxdr/**,/api/identity/**
           filters:
             - RemoveRequestHeader=Origin
 

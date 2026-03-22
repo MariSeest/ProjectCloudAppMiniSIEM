@@ -64,7 +64,7 @@ services:
     build:
       context: ./apps/frontend
       args:
-        VITE_API_BASE_URL: /api
+        VITE_API_BASE_URL: /group-5/api
     container_name: frontend
     restart: unless-stopped
     depends_on:

@@ -11,36 +11,179 @@ spec:
       namespace: default
       sectionName: https
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /group-5/api
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
+              replacePrefixMatch: /api/auth
               type: ReplacePrefixMatch
-              replacePrefixMatch: /api
-      backendRefs:
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/auth
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/users
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/users
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/dashboard
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/dashboard
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/acn
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/acn
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/audit
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/audit
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/falxdr
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/falxdr
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/identity
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/identity
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/events
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/events
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: siem-service
+          port: 8083
+          weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /api/alerts
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api/alerts
+    - backendRefs:
         - group: ""
           kind: Service
           name: gateway
           port: 8080
           weight: 1
-
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /group-5
       filters:
         - type: URLRewrite
           urlRewrite:
             path:
+              replacePrefixMatch: /api
               type: ReplacePrefixMatch
-              replacePrefixMatch: /
-      backendRefs:
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5/api
+    - backendRefs:
         - group: ""
           kind: Service
           name: group-5-service
           port: 80
           weight: 1
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              replacePrefixMatch: /
+              type: ReplacePrefixMatch
+      matches:
+        - path:
+            type: PathPrefix
+            value: /group-5

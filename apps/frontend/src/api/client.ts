@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { AxiosResponse, AxiosError } from 'axios'
 
 const api = axios.create({
-    baseURL: (import.meta as any).env?.VITE_API_BASE_URL || '/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || '/group-5/api',
     timeout: 15000,
 })
 

@@ -1,11 +1,21 @@
 import { useEffect, useState } from 'react'
 import { acnApi } from '../api'
+import { jsPDF } from 'jspdf'
+import { Document, Paragraph, TextRun, HeadingLevel, Packer } from 'docx'
 
 const TIPOLOGIE = ['Pre-notifica (entro 24h)', 'Notifica iniziale (entro 72h)', 'Notifica intermedia', 'Notifica finale']
 const SETTORI = ['Energia', 'Trasporti', 'Settore bancario', 'Infrastrutture dei mercati finanziari', 'Sanità', 'Fornitura e distribuzione di acqua potabile', 'Acque reflue', 'Infrastrutture digitali', 'Gestione dei servizi ICT (B2B)', 'Pubblica Amministrazione', 'Spazio', 'Servizi postali e di corriere', 'Gestione dei rifiuti', 'Fornitori di servizi digitali', 'Organizzazioni di ricerca']
 const STATI_INCIDENTE = ['Concluso', 'In corso ma gestito', 'In corso non gestito']
 const TIPOLOGIE_INC = ['Cyber (compilare sezione G)', 'non-Cyber (compilare sezione H)', 'entrambi (compilare sezione G ed H)']
 const TASSONOMIE = ['Impact - Account Compromise', 'Impact - Application Compromise', 'Impact - Availability', 'Impact - Data Exfiltration', 'Impact - Data Exposure', 'Impact - Data Manipulation', 'Impact - No Impact', 'Impact - System Compromise', 'Root Cause - Human Errors', 'Root Cause - Malicious Actions', 'Root Cause - System Failure', 'Root Cause - Third Party Failure', 'Severity - High', 'Severity - Medium', 'Active Scanning - Credential Scanning', 'Active Scanning - Network Scanning', 'Active Scanning - Vulnerability Scanning']
+
+function parseSection(s: any): any {
+    if (!s) return {}
+    if (typeof s === 'string') {
+        try { return JSON.parse(s) } catch { return {} }
+    }
+    return s
+}
 
 function Section({ title, open, onToggle, children }: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
     return (
@@ -29,6 +39,153 @@ function F({ label, required, children }: { label: string; required?: boolean; c
             {children}
         </div>
     )
+}
+
+function downloadPdf(r: any) {
+    const doc = new jsPDF()
+    const sA = parseSection(r.sectionA)
+    const sB = parseSection(r.sectionB)
+    const sC = parseSection(r.sectionC)
+    const sD = parseSection(r.sectionD)
+    const sE = parseSection(r.sectionE)
+
+    doc.setFontSize(18)
+    doc.text('ACN - Notifica Incidente NIS2', 20, 20)
+    doc.setFontSize(11)
+
+    let y = 35
+    const line = (label: string, value: string) => {
+        doc.setFont('helvetica', 'bold')
+        doc.text(label + ':', 20, y)
+        doc.setFont('helvetica', 'normal')
+        const lines = doc.splitTextToSize(value || '—', 150)
+        doc.text(lines, 70, y)
+        y += 8 * lines.length
+        if (y > 270) { doc.addPage(); y = 20 }
+    }
+
+    doc.setFontSize(14)
+    doc.text('SEZIONE A — Organizzazione', 20, y); y += 10
+    doc.setFontSize(11)
+    line('Denominazione', sA.denominazione)
+    line('Tipologia', sA.tipologia)
+    line('Codice Fiscale', sA.codiceFiscale)
+    line('P.IVA', sA.piva)
+    line('Codice NIS', sA.codiceNIS)
+    line('PEC', sA.pec)
+    line('Settore', sA.settore)
+
+    y += 5
+    doc.setFontSize(14)
+    doc.text('SEZIONE B — Segnalante', 20, y); y += 10
+    doc.setFontSize(11)
+    line('Nome e Cognome', sB.nome)
+    line('Ruolo', sB.ruolo)
+    line('Email', sB.email)
+    line('Telefono', sB.telefono)
+
+    y += 5
+    doc.setFontSize(14)
+    doc.text('SEZIONE C — Descrizione Incidente', 20, y); y += 10
+    doc.setFontSize(11)
+    line('Stato', sC.stato)
+    line('Tipologia', sC.tipologia)
+    line('Data Rilevamento', sC.dataRilevamento)
+    line('Data Inizio', sC.dataInizio)
+    if (sC.descrizione) {
+        doc.setFont('helvetica', 'bold')
+        doc.text('Descrizione:', 20, y); y += 8
+        doc.setFont('helvetica', 'normal')
+        const lines = doc.splitTextToSize(sC.descrizione, 170)
+        doc.text(lines, 20, y)
+        y += 8 * lines.length
+    }
+
+    y += 5
+    doc.setFontSize(14)
+    doc.text('SEZIONE D — Tassonomia', 20, y); y += 10
+    doc.setFontSize(11)
+    line('Tassonomia NIS', sD.tassonomia)
+
+    y += 5
+    doc.setFontSize(14)
+    doc.text('SEZIONE E — Impatto', 20, y); y += 10
+    doc.setFontSize(11)
+    line('Utenti Impattati', sE.utentiImpattati)
+    line('Durata (min)', sE.durata)
+    line('Violazione Dati', sE.violazioneDati)
+
+    doc.save(`ACN_Report_${r.id?.slice(0, 8) || 'nuovo'}.pdf`)
+}
+
+async function downloadWord(r: any) {
+    const sA = parseSection(r.sectionA)
+    const sB = parseSection(r.sectionB)
+    const sC = parseSection(r.sectionC)
+    const sD = parseSection(r.sectionD)
+    const sE = parseSection(r.sectionE)
+
+    const p = (label: string, value: string) => new Paragraph({
+        children: [
+            new TextRun({ text: label + ': ', bold: true }),
+            new TextRun({ text: value || '—' }),
+        ],
+        spacing: { after: 100 },
+    })
+
+    const doc = new Document({
+        sections: [{
+            children: [
+                new Paragraph({ text: 'ACN - Notifica Incidente NIS2', heading: HeadingLevel.TITLE }),
+                new Paragraph({ text: `Tipologia: ${r.notificationType || '—'}` }),
+                new Paragraph({ text: `Stato: ${r.status || '—'}` }),
+                new Paragraph({ text: '' }),
+                new Paragraph({ text: 'SEZIONE A — Organizzazione', heading: HeadingLevel.HEADING_1 }),
+                p('Denominazione', sA.denominazione),
+                p('Tipologia soggetto', sA.tipologia),
+                p('Codice Fiscale', sA.codiceFiscale),
+                p('P.IVA', sA.piva),
+                p('Codice NIS', sA.codiceNIS),
+                p('PEC', sA.pec),
+                p('Settore', sA.settore),
+                new Paragraph({ text: '' }),
+                new Paragraph({ text: 'SEZIONE B — Segnalante', heading: HeadingLevel.HEADING_1 }),
+                p('Nome e Cognome', sB.nome),
+                p('Ruolo', sB.ruolo),
+                p('Email', sB.email),
+                p('Telefono', sB.telefono),
+                new Paragraph({ text: '' }),
+                new Paragraph({ text: 'SEZIONE C — Descrizione Incidente', heading: HeadingLevel.HEADING_1 }),
+                p('Stato incidente', sC.stato),
+                p('Tipologia', sC.tipologia),
+                p('Data Rilevamento', sC.dataRilevamento),
+                p('Data Inizio', sC.dataInizio),
+                p('Descrizione', sC.descrizione),
+                p('Vulnerabilità', sC.vulnerabilita),
+                new Paragraph({ text: '' }),
+                new Paragraph({ text: 'SEZIONE D — Tassonomia', heading: HeadingLevel.HEADING_1 }),
+                p('Tassonomia NIS', sD.tassonomia),
+                p('Tassonomia ACN', sD.tassonomiaACN),
+                new Paragraph({ text: '' }),
+                new Paragraph({ text: 'SEZIONE E — Impatto', heading: HeadingLevel.HEADING_1 }),
+                p('Utenti Impattati', sE.utentiImpattati),
+                p('Percentuale Utenti', sE.percentualeUtenti),
+                p('Inizio Interruzione', sE.inizioInterruzione),
+                p('Fine Interruzione', sE.fineInterruzione),
+                p('Durata (min)', sE.durata),
+                p('Violazione Dati', sE.violazioneDati),
+                p('Azioni Mitigazione', sE.azioniMitigazione),
+            ],
+        }],
+    })
+
+    const blob = await Packer.toBlob(doc)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ACN_Report_${r.id?.slice(0, 8) || 'nuovo'}.docx`
+    a.click()
+    URL.revokeObjectURL(url)
 }
 
 export default function AcnReports() {
@@ -57,11 +214,8 @@ export default function AcnReports() {
 
     async function load() {
         setLoading(true)
-        try {
-            setReports(await acnApi.list())
-        } finally {
-            setLoading(false)
-        }
+        try { setReports(await acnApi.list()) }
+        finally { setLoading(false) }
     }
 
     useEffect(() => { void load() }, [])
@@ -71,6 +225,23 @@ export default function AcnReports() {
         setSF({}); setSG({}); setSH({}); setSI({}); setSL({})
         setNotifType(TIPOLOGIE[0])
         setEditId(null)
+    }
+
+    function openEdit(r: any) {
+        setEditId(r.id)
+        setNotifType(r.notificationType || TIPOLOGIE[0])
+        setSA(parseSection(r.sectionA))
+        setSB(parseSection(r.sectionB))
+        setSC(parseSection(r.sectionC))
+        setSD(parseSection(r.sectionD))
+        setSE(parseSection(r.sectionE))
+        setSF(parseSection(r.sectionF))
+        setSG(parseSection(r.sectionG))
+        setSH(parseSection(r.sectionH))
+        setSI(parseSection(r.sectionI))
+        setSL(parseSection(r.sectionL))
+        setOpen({ A: true, B: false, C: false, D: false, E: false, F: false, G: false, H: false, I: false, L: false })
+        setView('form')
     }
 
     async function save(submit = false) {
@@ -86,23 +257,13 @@ export default function AcnReports() {
             if (editId) report = await acnApi.update(editId, payload)
             else report = await acnApi.create(payload)
             if (submit) await acnApi.submit(report.id)
-            setSuccess(submit ? '✅ Report submitted to ACN!' : '💾 Report saved as draft.')
+            setSuccess(submit ? '✅ Report inviato ad ACN!' : '💾 Report salvato.')
             setView('list')
             resetForm()
             void load()
         } finally {
             setSaving(false)
         }
-    }
-
-    function openEdit(r: any) {
-        setEditId(r.id)
-        setNotifType(r.notificationType || TIPOLOGIE[0])
-        setSA(r.sectionA || {}); setSB(r.sectionB || {}); setSC(r.sectionC || {})
-        setSD(r.sectionD || {}); setSE(r.sectionE || {}); setSF(r.sectionF || {})
-        setSG(r.sectionG || {}); setSH(r.sectionH || {}); setSI(r.sectionI || {})
-        setSL(r.sectionL || {})
-        setView('form')
     }
 
     const toggle = (k: string) => setOpen((p) => ({ ...p, [k]: !p[k] }))
@@ -118,8 +279,8 @@ export default function AcnReports() {
                 </div>
                 <div className="page-actions">
                     <button className="btn" onClick={() => { setView('list'); resetForm() }}>← Back</button>
-                    <button className="btn" onClick={() => void save(false)} disabled={saving}>💾 Save Draft</button>
-                    <button className="btn btn-primary" onClick={() => void save(true)} disabled={saving}>📤 Submit to ACN</button>
+                    <button className="btn" onClick={() => void save(false)} disabled={saving}>💾 Salva Bozza</button>
+                    <button className="btn btn-primary" onClick={() => void save(true)} disabled={saving}>📤 Invia ad ACN</button>
                 </div>
             </div>
 
@@ -128,7 +289,7 @@ export default function AcnReports() {
             <div className="field" style={{ maxWidth: 360 }}>
                 <label className="field-label">Tipologia di Notifica *</label>
                 <select className="select" value={notifType} onChange={(e) => setNotifType(e.target.value)}>
-                    {TIPOLOGIE.map((t) => <option key={t}>{t}</option>)}
+                    {TIPOLOGIE.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
             </div>
 
@@ -156,7 +317,7 @@ export default function AcnReports() {
                 <F label="Settori di competenza (NIS2)">
                     <select className="select" value={sA.settore || ''} onChange={(e) => upd(setSA, 'settore', e.target.value)}>
                         <option value="">Seleziona settore…</option>
-                        {SETTORI.map((s) => <option key={s}>{s}</option>)}
+                        {SETTORI.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                 </F>
             </Section>
@@ -183,13 +344,13 @@ export default function AcnReports() {
                     <F label="Stato dell'incidente" required>
                         <select className="select" value={sC.stato || ''} onChange={(e) => upd(setSC, 'stato', e.target.value)}>
                             <option value="">Seleziona…</option>
-                            {STATI_INCIDENTE.map((s) => <option key={s}>{s}</option>)}
+                            {STATI_INCIDENTE.map((s) => <option key={s} value={s}>{s}</option>)}
                         </select>
                     </F>
                     <F label="Tipologia incidente" required>
                         <select className="select" value={sC.tipologia || ''} onChange={(e) => upd(setSC, 'tipologia', e.target.value)}>
                             <option value="">Seleziona…</option>
-                            {TIPOLOGIE_INC.map((s) => <option key={s}>{s}</option>)}
+                            {TIPOLOGIE_INC.map((s) => <option key={s} value={s}>{s}</option>)}
                         </select>
                     </F>
                     <F label="Data rilevamento" required>
@@ -212,7 +373,7 @@ export default function AcnReports() {
                 <F label="Tassonomia NIS *">
                     <select className="select" value={sD.tassonomia || ''} onChange={(e) => upd(setSD, 'tassonomia', e.target.value)}>
                         <option value="">Seleziona…</option>
-                        {TASSONOMIE.map((t) => <option key={t}>{t}</option>)}
+                        {TASSONOMIE.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                 </F>
                 <F label="Tassonomia ACN aggiuntiva">
@@ -240,9 +401,9 @@ export default function AcnReports() {
                     <F label="Violazione dati personali">
                         <select className="select" value={sE.violazioneDati || ''} onChange={(e) => upd(setSE, 'violazioneDati', e.target.value)}>
                             <option value="">Seleziona…</option>
-                            <option>Si</option>
-                            <option>No</option>
-                            <option>Non noto</option>
+                            <option value="Si">Si</option>
+                            <option value="No">No</option>
+                            <option value="Non noto">Non noto</option>
                         </select>
                     </F>
                 </div>
@@ -255,8 +416,8 @@ export default function AcnReports() {
                 <F label="Business Continuity Response attivata">
                     <select className="select" value={sF.bcp || ''} onChange={(e) => upd(setSF, 'bcp', e.target.value)}>
                         <option value="">Seleziona…</option>
-                        <option>Si</option>
-                        <option>No</option>
+                        <option value="Si">Si</option>
+                        <option value="No">No</option>
                     </select>
                 </F>
                 <F label="Misure di recupero" required>
@@ -271,8 +432,8 @@ export default function AcnReports() {
                 <F label="L'operatore opera in due o più Stati europei?">
                     <select className="select" value={sG.transfrontaliero || ''} onChange={(e) => upd(setSG, 'transfrontaliero', e.target.value)}>
                         <option value="">Seleziona…</option>
-                        <option>Si</option>
-                        <option>No</option>
+                        <option value="Si">Si</option>
+                        <option value="No">No</option>
                     </select>
                 </F>
                 {sG.transfrontaliero === 'Si' && (
@@ -289,8 +450,8 @@ export default function AcnReports() {
                 <F label="Notifica al Garante della Privacy">
                     <select className="select" value={sH.garante || ''} onChange={(e) => upd(setSH, 'garante', e.target.value)}>
                         <option value="">Seleziona…</option>
-                        <option>Si</option>
-                        <option>No</option>
+                        <option value="Si">Si</option>
+                        <option value="No">No</option>
                     </select>
                 </F>
                 <F label="Notifica ad altri CERT/CSIRT">
@@ -310,20 +471,15 @@ export default function AcnReports() {
 
             <Section title="SEZIONE L — Indicatori di Compromissione (IoC/IoA)" open={open.L} onToggle={() => toggle('L')}>
                 <F label="Indicatori (uno per riga, formato: tipo|valore)">
-          <textarea
-              className="textarea"
-              rows={6}
-              value={sL.indicatori || ''}
-              onChange={(e) => upd(setSL, 'indicatori', e.target.value)}
-              placeholder={'IoC|192.168.1.100\nIoC|malware.exe\nIoA|T1059'}
-          />
+          <textarea className="textarea" rows={6} value={sL.indicatori || ''} onChange={(e) => upd(setSL, 'indicatori', e.target.value)}
+                    placeholder={'IoC|192.168.1.100\nIoC|malware.exe\nIoA|T1059'} />
                 </F>
             </Section>
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
-                <button className="btn" onClick={() => { setView('list'); resetForm() }}>Cancel</button>
-                <button className="btn" onClick={() => void save(false)} disabled={saving}>💾 Save Draft</button>
-                <button className="btn btn-primary" onClick={() => void save(true)} disabled={saving}>📤 Submit to ACN</button>
+                <button className="btn" onClick={() => { setView('list'); resetForm() }}>Annulla</button>
+                <button className="btn" onClick={() => void save(false)} disabled={saving}>💾 Salva Bozza</button>
+                <button className="btn btn-primary" onClick={() => void save(true)} disabled={saving}>📤 Invia ad ACN</button>
             </div>
         </div>
     )
@@ -373,7 +529,7 @@ export default function AcnReports() {
                           {r.status}
                         </span>
                                     </td>
-                                    <td style={{ fontSize: 12 }}>{r.sectionA?.denominazione || '—'}</td>
+                                    <td style={{ fontSize: 12 }}>{parseSection(r.sectionA).denominazione || '—'}</td>
                                     <td className="mono" style={{ fontSize: 11, color: 'var(--muted2)' }}>
                                         {new Date(r.createdAt).toLocaleDateString()}
                                     </td>
@@ -381,18 +537,15 @@ export default function AcnReports() {
                                         {r.submittedAt ? new Date(r.submittedAt).toLocaleString() : '—'}
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', gap: 5 }}>
-                                            <button className="btn btn-xs" onClick={() => openEdit(r)}>Edit</button>
+                                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                                            <button className="btn btn-xs" onClick={() => openEdit(r)}>✏️ Edit</button>
+                                            <button className="btn btn-xs" onClick={() => downloadPdf(r)}>📄 PDF</button>
+                                            <button className="btn btn-xs" onClick={() => void downloadWord(r)}>📝 Word</button>
                                             {r.status === 'DRAFT' && (
-                                                <button
-                                                    className="btn btn-xs btn-primary"
-                                                    onClick={async () => {
-                                                        await acnApi.submit(r.id)
-                                                        void load()
-                                                    }}
-                                                >
-                                                    Submit
-                                                </button>
+                                                <button className="btn btn-xs btn-primary" onClick={async () => {
+                                                    await acnApi.submit(r.id)
+                                                    void load()
+                                                }}>📤 Invia</button>
                                             )}
                                         </div>
                                     </td>

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencti-tunnel
+  namespace: group-5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opencti-tunnel
+  template:
+    metadata:
+      labels:
+        app: opencti-tunnel
+    spec:
+      containers:
+        - name: tunnel
+          image: alpine:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache openssh-client &&
+              mkdir -p /root/.ssh &&
+              cp /ssh/id_ed25519 /root/.ssh/id_ed25519 &&
+              chmod 600 /root/.ssh/id_ed25519 &&
+              while true; do
+                echo "Connecting SSH tunnel to OpenCTI..."
+                ssh -N \
+                  -L 0.0.0.0:9999:127.0.0.1:9999 \
+                  -p 64295 \
+                  -o StrictHostKeyChecking=no \
+                  -o UserKnownHostsFile=/dev/null \
+                  -o ServerAliveInterval=30 \
+                  -o ServerAliveCountMax=3 \
+                  -o ExitOnForwardFailure=yes \
+                  -o ConnectTimeout=30 \
+                  cyske@172.16.1.23 || echo "Tunnel died, reconnecting in 5s..."
+                sleep 5
+              done
+          ports:
+            - containerPort: 9999
+          volumeMounts:
+            - name: ssh-key
+              mountPath: /ssh
+              readOnly: true
+      volumes:
+        - name: ssh-key
+          secret:
+            secretName: opencti-ssh-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opencti-tunnel
+  namespace: group-5
+spec:
+  selector:
+    app: opencti-tunnel
+  ports:
+    - port: 9999
+      targetPort: 9999
+  type: ClusterIP

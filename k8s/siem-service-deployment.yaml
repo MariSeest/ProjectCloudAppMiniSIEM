@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: siem-service
+  namespace: group-5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: siem-service
+  template:
+    metadata:
+      labels:
+        app: siem-service
+    spec:
+      containers:
+        - name: siem-service
+          image: milume/minisiem-siem:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: DB_URL
+              value: "jdbc:postgresql://minisiem-postgres:5432/minisiem"
+            - name: DB_USERNAME
+              value: "minisiem"
+            - name: DB_PASSWORD
+              value: "minisiem"
+            - name: JWT_SECRET
+              value: "minisiemSecretKey2024VeryLongAndSecureKeyForJWTSigning"
+            - name: JWT_EXPIRATION
+              value: "86400000"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: siem-service
+  namespace: group-5
+spec:
+  selector:
+    app: siem-service
+  ports:
+    - port: 8083
+      targetPort: 8083
+  type: ClusterIP
