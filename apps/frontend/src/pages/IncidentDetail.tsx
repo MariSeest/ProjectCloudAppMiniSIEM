@@ -35,11 +35,23 @@ export default function IncidentDetail() {
 
     async function saveEdit() {
         try {
-            const updated = await incidentsApi.update(id!, {
-                ...form, cveIds: form.cveIds.split(',').map((s: string) => s.trim()).filter(Boolean)
-            })
-            setIncident(updated); setEditMode(false); setSuccess('Saved.')
-        } catch (e: any) { setError(String(e)) }
+            const payload = {
+                title: form.title,
+                description: form.description,
+                severity: form.severity,
+                status: form.status,
+                cveIds: form.cveIds
+                    ? form.cveIds.split(',').map((s: string) => s.trim()).filter(Boolean)
+                    : [],
+            }
+            const updated = await incidentsApi.update(id!, payload)
+            setIncident(updated)
+            setEditMode(false)
+            setSuccess('Saved.')
+            setError('')
+        } catch (e: any) {
+            setError(String(e))
+        }
     }
 
     async function addCorrelation() {

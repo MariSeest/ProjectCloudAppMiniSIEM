@@ -467,3 +467,24 @@ option {
     background: #1a1f2e;
     color: #e2e8f0;
 }
+/* ===== DROPDOWN FIX DARK MODE ===== */
+[data-theme="dark"] select,
+[data-theme="dark"] .select,
+.dark select,
+.dark .select {
+    color: #e2e8f0 !important;
+    background-color: #1e2433 !important;
+}
+
+[data-theme="dark"] select option,
+[data-theme="dark"] .select option,
+.dark select option,
+.dark .select option {
+    background-color: #1e2433 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Fallback globale per tutti i temi */
+select {
+    color-scheme: dark light;
+}

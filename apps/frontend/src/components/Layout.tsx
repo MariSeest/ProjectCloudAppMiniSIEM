@@ -10,11 +10,13 @@ const NAV = [
     { to: '/incidents', icon: '🚨', label: 'Incidents' },
     { to: '/correlate', icon: '⬡', label: 'Correlations' },
     { to: '/cves', icon: '🔍', label: 'CVEs' },
+    { to: '/news', icon: '📰', label: 'Cyber News' },
 ]
 
 const SECURITY = [
     { to: '/falxdr', icon: '🛡️', label: 'FALXDR Endpoints' },
     { to: '/discovery', icon: '📡', label: 'Asset Discovery' },
+    { to: '/risk', icon: '🎯', label: 'Risk Predictor' },
     { to: '/identity', icon: '🔑', label: 'Identity Mgmt' },
 ]
 
@@ -69,13 +71,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <span className="user-pill__role">{user.role}</span>
                         </div>
                     </div>
-                    <button
-                        className="btn-logout"
-                        onClick={() => {
-                            logout()
-                            navigate('/login')
-                        }}
-                    >
+                    <button className="btn-logout" onClick={() => { logout(); navigate('/login') }}>
                         Logout
                     </button>
                 </div>

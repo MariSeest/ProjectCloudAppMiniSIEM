@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Events from './pages/Events'
 import { EventDetail } from './pages/EventDetail'
 import Alerts from './pages/Alerts'
+import RiskPredictor from './pages/RiskPredictor'
 import { AlertDetail } from './pages/AlertDetail'
 import Incidents from './pages/Incidents'
 import IncidentDetail from './pages/IncidentDetail'
@@ -19,6 +20,7 @@ import { FalxdrEndpointDetail } from './pages/FalxdrEndpointDetail'
 import AssetDiscovery from './pages/AssetDiscovery'
 import IdentityManagement from './pages/IdentityManagement'
 import ArchivedTickets from './pages/ArchivedTickets'
+import CyberNews from './pages/CyberNews'
 
 function PR({ children }: { children: React.ReactNode }) {
     return <ProtectedRoute>{children}</ProtectedRoute>
@@ -42,6 +44,8 @@ export default function App() {
                 <Route path="/falxdr/:id" element={<PR><FalxdrEndpointDetail /></PR>} />
                 <Route path="/discovery" element={<PR><AssetDiscovery /></PR>} />
                 <Route path="/identity" element={<PR><IdentityManagement /></PR>} />
+                <Route path="/news" element={<PR><CyberNews /></PR>} />
+                <Route path="/risk" element={<PR><RiskPredictor /></PR>} />
                 <Route path="/acn" element={<PR><AcnReports /></PR>} />
                 <Route path="/audit" element={<PR><AuditLog /></PR>} />
                 <Route path="/users" element={<PR><UserManagement /></PR>} />

@@ -1,72 +1,99 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cvesApi } from '../api'
+
+interface Cve {
+    cveId: string
+    description: string
+    severity: string
+    score: number | null
+    created: string
+    modified: string
+    externalUrl: string | null
+}
+
+function severityColor(s: string) {
+    switch (s?.toUpperCase()) {
+        case 'CRITICAL': return 'badge-critical'
+        case 'HIGH': return 'badge-high'
+        case 'MEDIUM': return 'badge-medium'
+        case 'LOW': return 'badge-low'
+        default: return 'badge-unknown'
+    }
+}
 
 export default function CVEs() {
     const [query, setQuery] = useState('')
-    const [results, setResults] = useState<any[]>([])
+    const [results, setResults] = useState<Cve[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    const [total, setTotal] = useState(0)
+    const [selected, setSelected] = useState<Cve | null>(null)
 
-    async function search() {
-        if (!query.trim()) return
+    async function search(q = query) {
         setLoading(true)
         setError('')
         try {
-            const data = await cvesApi.list(query, 20)
-            if (Array.isArray(data)) {
-                setResults(data)
-                setTotal(data.length)
-            } else if (data?.vulnerabilities) {
-                setResults(data.vulnerabilities)
-                setTotal(data.totalResults || data.vulnerabilities.length)
-            } else {
-                setResults([])
-                setTotal(0)
-            }
+            const data = await cvesApi.list(q, 20)
+            setResults(Array.isArray(data) ? data : [])
         } catch {
             setError('Error fetching CVEs. Check connection.')
+            setResults([])
         } finally {
             setLoading(false)
         }
     }
 
-    function renderRow(item: any) {
-        if (item?.cve) {
-            const cve = item.cve
-            const metrics = cve.metrics?.cvssMetricV31?.[0] ||
-                cve.metrics?.cvssMetricV30?.[0] ||
-                cve.metrics?.cvssMetricV2?.[0]
-            const score = metrics?.cvssData?.baseScore
-            const severity = metrics?.cvssData?.baseSeverity ||
-                (score >= 9 ? 'CRITICAL' : score >= 7 ? 'HIGH' : score >= 4 ? 'MEDIUM' : 'LOW')
-            const desc = cve.descriptions?.find((d: any) => d.lang === 'en')?.value || '—'
-            return (
-                <tr key={cve.id}>
-                    <td><a className="tag" href={`https://nvd.nist.gov/vuln/detail/${cve.id}`} target="_blank" rel="noreferrer">{cve.id}</a></td>
-                    <td>{severity && <span className={`badge badge-${severity.toLowerCase()}`}>{severity}</span>}</td>
-                    <td style={{ fontWeight: 700, color: score >= 9 ? 'var(--danger)' : score >= 7 ? 'var(--warning)' : 'var(--success)' }}>{score ?? '—'}</td>
-                    <td style={{ color: 'var(--muted)', fontSize: 12 }}>{desc}</td>
-                    <td className="mono" style={{ fontSize: 11 }}>{cve.published?.slice(0, 10)}</td>
-                </tr>
-            )
-        }
-
-        const sev = (item.severity || 'UNKNOWN').toUpperCase()
-        const sevClass = sev === 'CRITICAL' ? 'badge-critical' : sev === 'HIGH' ? 'badge-high' : sev === 'MEDIUM' ? 'badge-medium' : 'badge-low'
-        return (
-            <tr key={item.cveId || item.id}>
-                <td><span className="tag">{item.cveId || item.name || item.id}</span></td>
-                <td><span className={`badge ${sevClass}`}>{sev}</span></td>
-                <td style={{ fontWeight: 700 }}>{item.score ?? '—'}</td>
-                <td style={{ color: 'var(--muted)', fontSize: 12 }}>{item.description || '—'}</td>
-                <td className="mono" style={{ fontSize: 11 }}>{item.created?.slice(0, 10) || '—'}</td>
-            </tr>
-        )
-    }
+    useEffect(() => { void search('') }, [])
 
     return (
         <div className="page">
+            {selected && (
+                <div className="modal-overlay" onClick={() => setSelected(null)}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">{selected.cveId}</h2>
+                            <button className="modal-close" onClick={() => setSelected(null)}>✕</button>
+                        </div>
+                        <div className="modal-body">
+                            <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+                                <span className={`badge ${severityColor(selected.severity)}`}>{selected.severity}</span>
+                                {selected.score != null && (
+                                    <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--text)' }}>
+                                        Score: {selected.score.toFixed(1)}
+                                    </span>
+                                )}
+                            </div>
+                            <div style={{ marginBottom: 12 }}>
+                                <div style={{ color: 'var(--muted2)', fontSize: 12, marginBottom: 4 }}>DESCRIZIONE</div>
+                                <p style={{ color: 'var(--text)', lineHeight: 1.6 }}>
+                                    {selected.description || 'Nessuna descrizione disponibile.'}
+                                </p>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 16 }}>
+                                <div>
+                                    <div style={{ color: 'var(--muted2)', fontSize: 12 }}>PUBBLICATO</div>
+                                    <div style={{ color: 'var(--text)', fontSize: 13 }}>
+                                        {selected.created ? new Date(selected.created).toLocaleDateString() : '—'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ color: 'var(--muted2)', fontSize: 12 }}>AGGIORNATO</div>
+                                    <div style={{ color: 'var(--text)', fontSize: 13 }}>
+                                        {selected.modified ? new Date(selected.modified).toLocaleDateString() : '—'}
+                                    </div>
+                                </div>
+                            </div>
+                            {selected.externalUrl && (
+                                <div style={{ marginTop: 16 }}>
+                                    <a href={selected.externalUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                                        🔗 Vedi su NVD
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="page-header">
                 <div>
                     <h1 className="page-title">CVE Search</h1>
@@ -74,50 +101,68 @@ export default function CVEs() {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
                 <input
                     className="input"
                     style={{ flex: 1 }}
                     value={query}
-                    onChange={e => setQuery(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && void search()}
+                    onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search CVEs e.g. log4j, apache, CVE-2024-..."
+                    onKeyDown={(e) => e.key === 'Enter' && void search()}
                 />
-                <button className="btn btn-primary" onClick={() => void search()} disabled={loading || !query.trim()}>
-                    {loading ? 'Searching…' : '🔍 Search'}
+                <button className="btn btn-primary" onClick={() => void search()} disabled={loading}>
+                    🔍 Search
                 </button>
             </div>
 
-            {error && <div className="alert-msg alert-msg--error">{error}</div>}
-            {total > 0 && <p style={{ fontSize: 13, color: 'var(--muted)' }}>{total} results found</p>}
+            {error && <div className="alert-msg alert-msg--danger">{error}</div>}
 
-            {results.length > 0 && (
-                <div className="card">
-                    <div className="card-head">
-                        <span className="card-title">CVE Results</span>
-                        <span className="card-count">{results.length} shown</span>
+            {loading
+                ? <div className="loading-wrap"><div className="spinner" /></div>
+                : (
+                    <div className="card">
+                        <div className="card-head">
+                            <span className="card-title">CVE Results</span>
+                            <span className="card-count">{results.length} shown</span>
+                        </div>
+                        <table className="data-table">
+                            <thead>
+                            <tr>
+                                <th>CVE ID</th>
+                                <th>SEVERITY</th>
+                                <th>SCORE</th>
+                                <th>DESCRIPTION</th>
+                                <th>PUBLISHED</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {results.length === 0
+                                ? <tr><td colSpan={5}><div className="empty-state"><div className="empty-state__icon">🔍</div>No results. Try a different search.</div></td></tr>
+                                : results.map((c, i) => (
+                                    <tr key={i} style={{ cursor: 'pointer' }} onClick={() => setSelected(c)}>
+                                        <td>
+                                            <span style={{ color: 'var(--primary)', fontWeight: 600, fontFamily: 'monospace' }}>
+                                                {c.cveId}
+                                            </span>
+                                        </td>
+                                        <td><span className={`badge ${severityColor(c.severity)}`}>{c.severity}</span></td>
+                                        <td style={{ fontWeight: 600 }}>{c.score != null ? c.score.toFixed(1) : '—'}</td>
+                                        <td style={{ fontSize: 12, color: 'var(--muted)', maxWidth: 400 }}>
+                                            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 400 }}>
+                                                {c.description || '—'}
+                                            </div>
+                                        </td>
+                                        <td style={{ fontSize: 11, color: 'var(--muted2)', fontFamily: 'monospace' }}>
+                                            {c.created ? new Date(c.created).toLocaleDateString() : '—'}
+                                        </td>
+                                    </tr>
+                                ))
+                            }
+                            </tbody>
+                        </table>
                     </div>
-                    <table className="data-table">
-                        <thead>
-                        <tr>
-                            <th style={{ width: 160 }}>CVE ID</th>
-                            <th style={{ width: 100 }}>Severity</th>
-                            <th style={{ width: 60 }}>Score</th>
-                            <th>Description</th>
-                            <th style={{ width: 100 }}>Published</th>
-                        </tr>
-                        </thead>
-                        <tbody>{results.map(renderRow)}</tbody>
-                    </table>
-                </div>
-            )}
-
-            {!loading && results.length === 0 && query && !error && (
-                <div className="empty-state">
-                    <div className="empty-state__icon">🔍</div>
-                    No results for "{query}"
-                </div>
-            )}
+                )
+            }
         </div>
     )
 }

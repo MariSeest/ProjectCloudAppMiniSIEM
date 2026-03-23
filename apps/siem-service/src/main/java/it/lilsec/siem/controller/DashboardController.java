@@ -22,8 +22,8 @@ public class DashboardController {
             .filter(e -> "ACTIVE".equals(e.getAgentStatus())).count();
         Map<String,Object> s = new LinkedHashMap<>();
         s.put("totalEvents", 5);
-        s.put("totalAlerts", 3);
-        s.put("openAlerts", 2);
+        s.put("totalAlerts", 0);
+        s.put("openAlerts", 0);
         s.put("openIncidents", 2);
         s.put("criticalIncidents", 0);
         s.put("totalEndpoints", endpoints.size());
