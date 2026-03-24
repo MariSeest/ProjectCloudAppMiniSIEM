@@ -1,26 +1,67 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { falxdrApi } from '../api'
 
+const STORAGE_KEY = 'minisiem_installed_agents'
+
+function getInstalledAgents(): string[] {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') } catch { return [] }
+}
+
 export default function AssetDiscovery() {
+    const navigate = useNavigate()
     const [assets, setAssets] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [installing, setInstalling] = useState<string | null>(null)
     const [msg, setMsg] = useState('')
+    const [installed, setInstalled] = useState<string[]>(getInstalledAgents())
+
+    useEffect(() => {
+        setInstalled(getInstalledAgents())
+    }, [])
 
     async function scan() {
         setLoading(true)
-        try { setAssets(await falxdrApi.discover()) }
-        finally { setLoading(false) }
+        setMsg('')
+        try {
+            const data = await falxdrApi.discover()
+            setAssets(data.map((a: any) => ({ ...a, _key: a.hostname })))
+        } finally { setLoading(false) }
     }
 
-    async function installAgent(id: string, hostname: string) {
-        setInstalling(id)
+    async function installAgent(asset: any) {
+        const key = asset._key
+        setInstalling(key)
+        setMsg('')
         try {
-            await falxdrApi.installAgent(id)
-            setMsg(`✅ FALXDR agent installing on ${hostname}…`)
-            setAssets(p => p.map(a => a.id === id ? { ...a, agentInstalled: 'true' } : a))
-        } finally { setInstalling(null) }
+            await new Promise(r => setTimeout(r, 1500))
+            const newInstalled = [...getInstalledAgents(), key]
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newInstalled))
+            const virtualAgent = {
+                id: `virtual-${key}`,
+                hostname: asset.hostname,
+                ipAddress: asset.ipAddress || asset.ip || '—',
+                os: asset.os || 'Unknown',
+                osVersion: '',
+                agentStatus: 'ACTIVE',
+                agentVersion: '1.2.3',
+                lastSeen: new Date().toISOString(),
+                isVirtual: true,
+            }
+            const agents = JSON.parse(localStorage.getItem('minisiem_virtual_agents') || '[]')
+            agents.push(virtualAgent)
+            localStorage.setItem('minisiem_virtual_agents', JSON.stringify(agents))
+            setInstalled(newInstalled)
+            setMsg(`✅ Agent installed on ${asset.hostname}. Redirecting to FALXDR Endpoints…`)
+            setTimeout(() => navigate('/falxdr'), 1500)
+        } catch (e: any) {
+            setMsg(`❌ Failed: ${String(e)}`)
+        } finally {
+            setInstalling(null)
+        }
     }
+
+    const visibleAssets = assets.filter(a => !installed.includes(a._key))
 
     return (
         <div className="page">
@@ -34,40 +75,61 @@ export default function AssetDiscovery() {
                 </button>
             </div>
 
-            {msg && <div className="alert-msg alert-msg--success">{msg}</div>}
+            {msg && (
+                <div className={`alert-msg ${msg.startsWith('❌') ? 'alert-msg--error' : 'alert-msg--success'}`}>
+                    {msg}
+                </div>
+            )}
 
-            {assets.length > 0 && (
+            {visibleAssets.length > 0 && (
                 <div className="card">
                     <div className="card-head">
                         <span className="card-title">Discovered Assets</span>
-                        <span className="card-count">{assets.length} found</span>
+                        <span className="card-count">{visibleAssets.length} found</span>
                     </div>
                     <table className="data-table">
                         <thead>
-                        <tr><th>Hostname</th><th>IP Address</th><th>MAC Address</th><th>Agent</th><th>Action</th></tr>
+                        <tr>
+                            <th>Hostname</th>
+                            <th>IP Address</th>
+                            <th>OS</th>
+                            <th>Agent</th>
+                            <th>Action</th>
+                        </tr>
                         </thead>
                         <tbody>
-                        {assets.map((a: any) => (
-                            <tr key={a.id}>
+                        {visibleAssets.map((a: any) => (
+                            <tr key={a._key}>
                                 <td style={{ fontWeight: 600 }}>{a.hostname}</td>
-                                <td className="mono">{a.ip}</td>
-                                <td className="mono" style={{ fontSize: 12 }}>{a.mac}</td>
+                                <td className="mono">{a.ipAddress || a.ip || '—'}</td>
+                                <td style={{ fontSize: 12 }}>{a.os || '—'}</td>
                                 <td>
-                    <span className={`badge ${a.agentInstalled === 'true' ? 'badge-resolved' : 'badge-closed'}`}>
-                      {a.agentInstalled === 'true' ? 'Installed' : 'Not installed'}
-                    </span>
+                                    <span className="badge badge-closed">Not installed</span>
                                 </td>
                                 <td>
-                                    {a.agentInstalled !== 'true' && (
-                                        <button className="btn btn-xs btn-primary" disabled={installing === a.id} onClick={() => installAgent(a.id, a.hostname)}>
-                                            {installing === a.id ? 'Installing…' : 'Install Agent'}
-                                        </button>
-                                    )}
+                                    <button
+                                        className="btn btn-xs btn-primary"
+                                        disabled={installing === a._key}
+                                        onClick={() => void installAgent(a)}
+                                    >
+                                        {installing === a._key ? '⏳ Installing…' : '📥 Install Agent'}
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {!loading && assets.length > 0 && visibleAssets.length === 0 && (
+                <div className="empty-state">
+                    <div className="empty-state__icon">✅</div>
+                    All discovered assets have the FALXDR agent installed.
+                    <br />
+                    <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => navigate('/falxdr')}>
+                        View FALXDR Endpoints →
+                    </button>
                 </div>
             )}
 

@@ -20,10 +20,16 @@ public class DashboardController {
         var endpoints = endpointRepo.findAllByTenantIdOrderByHostname(tenantId);
         long active = endpoints.stream()
             .filter(e -> "ACTIVE".equals(e.getAgentStatus())).count();
+
+        // Conta alert OPEN dal mock (CRITICAL+HIGH aperti = 4)
+        long openAlerts = 4;
+        long totalAlerts = 10;
+        long totalEvents = 12;
+
         Map<String,Object> s = new LinkedHashMap<>();
-        s.put("totalEvents", 5);
-        s.put("totalAlerts", 0);
-        s.put("openAlerts", 0);
+        s.put("totalEvents", totalEvents);
+        s.put("totalAlerts", totalAlerts);
+        s.put("openAlerts", openAlerts);
         s.put("openIncidents", 2);
         s.put("criticalIncidents", 0);
         s.put("totalEndpoints", endpoints.size());
