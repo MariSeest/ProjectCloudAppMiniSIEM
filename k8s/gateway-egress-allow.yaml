@@ -58,3 +58,27 @@ spec:
     - ports:
         - protocol: UDP
           port: 53
+
+---
+# NetworkPolicy per opencti-tunnel: permette egress verso il server OpenCTI
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-opencti-tunnel-egress
+  namespace: group-5
+spec:
+  podSelector:
+    matchLabels:
+      app: opencti-tunnel
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 172.16.1.23/32
+      ports:
+        - protocol: TCP
+          port: 64295
+    - ports:
+        - protocol: UDP
+          port: 53

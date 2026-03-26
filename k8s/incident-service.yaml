@@ -27,8 +27,10 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               value: minisiem
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
-              value: validate
+              value: update
             - name: SPRING_FLYWAY_ENABLED
+              value: "false"
+            - name: SPRING_FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
           resources:
             requests:

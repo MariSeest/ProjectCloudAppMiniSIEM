@@ -30,6 +30,10 @@ spec:
               value: "minisiemSecretKey2024VeryLongAndSecureKeyForJWTSigning"
             - name: JWT_EXPIRATION
               value: "86400000"
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: "update"
+            - name: SPRING_FLYWAY_ENABLED
+              value: "false"
           readinessProbe:
             httpGet:
               path: /actuator/health

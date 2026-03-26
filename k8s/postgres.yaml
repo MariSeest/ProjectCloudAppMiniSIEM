@@ -1,22 +1,10 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minisiem-postgres-pvc
-  namespace: group-5
-spec:
-  storageClassName: csi-cinder-work
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: minisiem-postgres
   namespace: group-5
 spec:
+  serviceName: minisiem-postgres-headless
   replicas: 1
   selector:
     matchLabels:
@@ -41,13 +29,45 @@ spec:
             - name: PGDATA
               value: "/var/lib/postgresql/data/pgdata"
           volumeMounts:
-            - name: data
+            - name: postgres-data
               mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: minisiem-postgres-pvc
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "minisiem"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "minisiem"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        storageClassName: csi-cinder-work
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
 ---
+# Service HEADLESS — per lo StatefulSet (DNS stabile interno)
+apiVersion: v1
+kind: Service
+metadata:
+  name: minisiem-postgres-headless
+  namespace: group-5
+spec:
+  clusterIP: None
+  selector:
+    app: minisiem-postgres
+  ports:
+    - name: pg
+      port: 5432
+      targetPort: 5432
+---
+# Service NORMALE con ClusterIP — usato dai microservizi via JDBC
 apiVersion: v1
 kind: Service
 metadata:
@@ -60,4 +80,3 @@ spec:
     - name: pg
       port: 5432
       targetPort: 5432
-      protocol: TCP
