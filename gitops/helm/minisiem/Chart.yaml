@@ -1,0 +1,17 @@
+apiVersion: v2
+name: minisiem
+description: MiniSIEM v2 - Cloud-Native Security Platform Helm Umbrella Chart
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+
+maintainers:
+  - name: MariSeest
+    url: https://github.com/MariSeest
+
+keywords:
+  - siem
+  - security
+  - kubernetes
+  - cloud-native
+  - microservices

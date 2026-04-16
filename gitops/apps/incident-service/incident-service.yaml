@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-service
+  namespace: group-5
+  labels:
+    app: incident-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-service
+  template:
+    metadata:
+      labels:
+        app: incident-service
+    spec:
+      containers:
+        - name: incident-service
+          image: milume/minisiem-incident-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: DB_URL
+              value: jdbc:postgresql://minisiem-postgres:5432/minisiem
+            - name: DB_USERNAME
+              value: minisiem
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minisiem-secrets
+                  key: db-password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8082
+            initialDelaySeconds: 90
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: incident-service
+  namespace: group-5
+  labels:
+    app: incident-service
+spec:
+  selector:
+    app: incident-service
+  ports:
+    - port: 8082
+      targetPort: 8082
+  type: ClusterIP

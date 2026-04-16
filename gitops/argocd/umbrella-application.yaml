@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minisiem-helm
+  namespace: argocd
+  labels:
+    project: minisiem
+    methodology: helm-umbrella
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/MariSeest/ProjectCloudAppMiniSIEM.git
+    targetRevision: HEAD
+    path: gitops/helm/minisiem
+    helm:
+      releaseName: minisiem
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: group-5
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

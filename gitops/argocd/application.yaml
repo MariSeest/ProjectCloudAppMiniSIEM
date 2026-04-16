@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minisiem-app
+  namespace: argocd
+  labels:
+    project: minisiem
+    methodology: application
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/MariSeest/ProjectCloudAppMiniSIEM.git
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: group-5
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

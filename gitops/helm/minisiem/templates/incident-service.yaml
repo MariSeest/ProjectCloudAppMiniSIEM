@@ -1,0 +1,65 @@
+{{- if .Values.incidentService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: incident-service
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: {{ .Values.incidentService.replicas }}
+  selector:
+    matchLabels:
+      app: incident-service
+  template:
+    metadata:
+      labels:
+        app: incident-service
+    spec:
+      containers:
+        - name: incident-service
+          image: "{{ .Values.incidentService.image.repository }}:{{ .Values.incidentService.image.tag }}"
+          imagePullPolicy: {{ .Values.incidentService.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.incidentService.port }}
+          env:
+            - name: DB_URL
+              value: {{ .Values.incidentService.env.dbUrl }}
+            - name: DB_USERNAME
+              value: {{ .Values.incidentService.env.dbUsername }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: db-password
+          resources:
+            {{- toYaml .Values.incidentService.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.incidentService.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.incidentService.port }}
+            initialDelaySeconds: 90
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: incident-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: incident-service
+spec:
+  selector:
+    app: incident-service
+  ports:
+    - port: {{ .Values.incidentService.port }}
+      targetPort: {{ .Values.incidentService.port }}
+  type: ClusterIP
+{{- end }}
