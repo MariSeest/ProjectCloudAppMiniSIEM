@@ -11,12 +11,10 @@ spec:
   selector:
     matchLabels:
       app: frontend
-      release: minisiem-helm
   template:
     metadata:
       labels:
         app: frontend
-        release: minisiem-helm
     spec:
       containers:
         - name: frontend
@@ -41,7 +39,6 @@ metadata:
 spec:
   selector:
     app: frontend
-    release: minisiem-helm
   ports:
     - port: {{ .Values.frontend.port }}
       targetPort: {{ .Values.frontend.port }}
