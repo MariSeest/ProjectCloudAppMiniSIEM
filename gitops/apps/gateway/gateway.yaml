@@ -67,6 +67,8 @@ spec:
           env:
             - name: SPRING_CONFIG_LOCATION
               value: "file:/config/application.yml"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Dreactor.netty.http.client.resolver=default"
           volumeMounts:
             - name: config
               mountPath: /config/application.yml
