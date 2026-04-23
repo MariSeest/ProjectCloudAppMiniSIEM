@@ -1,8 +1,10 @@
-apiVersion: v1
+﻿apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gateway-config
   namespace: group-5
+  labels:
+    app: gateway
 data:
   application.yml: |
     server:
@@ -12,21 +14,27 @@ data:
         name: api-gateway
       data:
         redis:
-          host: redis
+          host: redis.group-5.svc.cluster.local
           port: 6379
       cloud:
         gateway:
           routes:
-            - id: incident-service
-              uri: http://incident-service:8082
-              predicates:
-                - Path=/api/incidents/**
-              filters:
-                - RemoveRequestHeader=Origin
             - id: vulnerability-service
-              uri: http://vulnerability-service:8081
+              uri: http://vulnerability-service.group-5.svc.cluster.local:8081
               predicates:
                 - Path=/api/cves/**
+              filters:
+                - RemoveRequestHeader=Origin
+            - id: incident-service
+              uri: http://incident-service.group-5.svc.cluster.local:8082
+              predicates:
+                - Path=/api/incidents/**,/api/correlation/**
+              filters:
+                - RemoveRequestHeader=Origin
+            - id: siem-service
+              uri: http://siem-service.group-5.svc.cluster.local:8083
+              predicates:
+                - Path=/api/auth/**,/api/users/**,/api/dashboard/**,/api/acn/**,/api/audit/**,/api/falxdr/**,/api/identity/**,/api/events/**,/api/alerts/**,/api/ai/**
               filters:
                 - RemoveRequestHeader=Origin
     management:
