@@ -15,25 +15,25 @@ data:
         name: api-gateway
       data:
         redis:
-          host: redis
+          host: {{ .Values.redis.clusterIP }}
           port: {{ .Values.redis.port }}
       cloud:
         gateway:
           routes:
             - id: vulnerability-service
-              uri: http://vulnerability-service:{{ .Values.vulnerabilityService.port }}
+              uri: http://{{ .Values.vulnerabilityService.clusterIP }}:{{ .Values.vulnerabilityService.port }}
               predicates:
                 - Path=/api/cves/**
               filters:
                 - RemoveRequestHeader=Origin
             - id: incident-service
-              uri: http://incident-service:{{ .Values.incidentService.port }}
+              uri: http://{{ .Values.incidentService.clusterIP }}:{{ .Values.incidentService.port }}
               predicates:
                 - Path=/api/incidents/**,/api/correlation/**
               filters:
                 - RemoveRequestHeader=Origin
             - id: siem-service
-              uri: http://siem-service:{{ .Values.siemService.port }}
+              uri: http://{{ .Values.siemService.clusterIP }}:{{ .Values.siemService.port }}
               predicates:
                 - Path=/api/auth/**,/api/users/**,/api/dashboard/**,/api/acn/**,/api/audit/**,/api/falxdr/**,/api/identity/**,/api/events/**,/api/alerts/**,/api/ai/**
               filters:
@@ -71,8 +71,6 @@ spec:
           env:
             - name: SPRING_CONFIG_LOCATION
               value: "file:/config/application.yml"
-            - name: JAVA_TOOL_OPTIONS
-              value: "-Dreactor.netty.http.client.resolver=default"
           volumeMounts:
             - name: config
               mountPath: /config/application.yml
