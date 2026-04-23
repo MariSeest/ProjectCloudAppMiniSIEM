@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gateway
@@ -18,6 +18,9 @@ spec:
           image: milume/minisiem-gateway:1.1
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: "file:/config/application.yml"
           volumeMounts:
             - name: gateway-config
               mountPath: /config/application.yml
@@ -40,11 +43,9 @@ metadata:
   name: gateway
   namespace: group-5
 spec:
-  type: ClusterIP
   selector:
     app: gateway
   ports:
-    - name: http
-      port: 8080
+    - port: 8080
       targetPort: 8080
-      protocol: TCP
+  type: ClusterIP
