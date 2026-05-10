@@ -61,19 +61,6 @@ PostgreSQL 16 · Redis 7 · OpenCTI
 
 La chart Helm usa una struttura **flat** (template diretti, no subchart) con `values.yaml` come single source of truth. Tutti i componenti condividono namespace e ciclo di rilascio, quindi il pattern umbrella con subchart indipendenti non aggiungeva valore in questo contesto.
 
-## Deploy locale
-
-```bash
-docker compose up --build
-```
-
-Servizi disponibili su:
-- Frontend: http://localhost:3000
-- Gateway: http://localhost:8080
-- siem-service: http://localhost:8083
-- incident-service: http://localhost:8082
-- vulnerability-service: http://localhost:8081
-
 
 ## Variabili d'ambiente
 
