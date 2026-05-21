@@ -102,3 +102,4 @@ postgres:
   port: 5432
   secret:
     name: minisiem-secrets
+
