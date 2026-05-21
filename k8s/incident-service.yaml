@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: incident-service
@@ -25,7 +25,10 @@ spec:
             - name: SPRING_DATASOURCE_USERNAME
               value: minisiem
             - name: SPRING_DATASOURCE_PASSWORD
-              value: minisiem
+              valueFrom:
+                secretKeyRef:
+                  name: minisiem-secrets
+                  key: db-password
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: update
             - name: SPRING_FLYWAY_ENABLED
