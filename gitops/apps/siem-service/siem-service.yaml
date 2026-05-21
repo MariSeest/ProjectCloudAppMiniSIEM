@@ -15,11 +15,6 @@ spec:
       labels:
         app: siem-service
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
       containers:
         - name: siem-service
           image: milume/minisiem-siem:latest
@@ -74,4 +69,3 @@ spec:
     - port: 8083
       targetPort: 8083
   type: ClusterIP
-

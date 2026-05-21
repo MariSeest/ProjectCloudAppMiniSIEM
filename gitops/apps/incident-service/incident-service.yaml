@@ -15,11 +15,6 @@ spec:
       labels:
         app: incident-service
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
       containers:
         - name: incident-service
           image: milume/minisiem-incident-service:latest
@@ -69,4 +64,3 @@ spec:
     - port: 8082
       targetPort: 8082
   type: ClusterIP
-
