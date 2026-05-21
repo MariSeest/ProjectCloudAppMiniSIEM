@@ -12,25 +12,25 @@ data:
         name: api-gateway
       data:
         redis:
-          host: 10.102.185.169
+          host: redis
           port: 6379
       cloud:
         gateway:
           routes:
             - id: vulnerability-service
-              uri: http://10.107.191.12:8081
+              uri: http://vulnerability-service:8081
               predicates:
                 - Path=/api/cves/**
               filters:
                 - RemoveRequestHeader=Origin
             - id: incident-service
-              uri: http://10.108.34.205:8082
+              uri: http://incident-service:8082
               predicates:
                 - Path=/api/incidents/**,/api/correlation/**
               filters:
                 - RemoveRequestHeader=Origin
             - id: siem-service
-              uri: http://10.98.56.13:8083
+              uri: http://siem-service:8083
               predicates:
                 - Path=/api/auth/**,/api/users/**,/api/dashboard/**,/api/acn/**,/api/audit/**,/api/falxdr/**,/api/identity/**,/api/events/**,/api/alerts/**,/api/ai/**
               filters:
