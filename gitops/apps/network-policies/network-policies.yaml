@@ -1,30 +1,15 @@
-﻿# Default deny: blocca tutto il traffico in ingresso e uscita per default
+﻿# gateway: esce solo verso i microservizi e redis
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: default-deny-all
-  namespace: group-5
-spec:
-  podSelector: {}
-  policyTypes:
-    - Ingress
-    - Egress
----
-# Gateway: accetta ingresso dall'esterno (Cilium ingress), esce verso i microservizi e redis
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-gateway
+  name: allow-gateway-egress
   namespace: group-5
 spec:
   podSelector:
     matchLabels:
       app: gateway
   policyTypes:
-    - Ingress
     - Egress
-  ingress:
-    - {}
   egress:
     - podSelector:
         matchLabels:
@@ -44,91 +29,11 @@ spec:
         - port: 53
           protocol: TCP
 ---
-# siem-service: accetta solo dal gateway, esce verso postgres
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-siem-service
-  namespace: group-5
-spec:
-  podSelector:
-    matchLabels:
-      app: siem-service
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    - podSelector:
-        matchLabels:
-          app: gateway
-  egress:
-    - podSelector:
-        matchLabels:
-          app: minisiem-postgres
-    - ports:
-        - port: 53
-          protocol: UDP
-        - port: 53
-          protocol: TCP
----
-# incident-service: accetta solo dal gateway, esce verso postgres
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-incident-service
-  namespace: group-5
-spec:
-  podSelector:
-    matchLabels:
-      app: incident-service
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    - podSelector:
-        matchLabels:
-          app: gateway
-  egress:
-    - podSelector:
-        matchLabels:
-          app: minisiem-postgres
-    - ports:
-        - port: 53
-          protocol: UDP
-        - port: 53
-          protocol: TCP
----
-# vulnerability-service: accetta solo dal gateway, esce verso internet (OpenCTI)
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-vulnerability-service
-  namespace: group-5
-spec:
-  podSelector:
-    matchLabels:
-      app: vulnerability-service
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    - podSelector:
-        matchLabels:
-          app: gateway
-  egress:
-    - ports:
-        - port: 443
-          protocol: TCP
-        - port: 53
-          protocol: UDP
-        - port: 53
-          protocol: TCP
----
 # PostgreSQL: accetta solo da siem-service e incident-service
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-postgres
+  name: allow-postgres-ingress
   namespace: group-5
 spec:
   podSelector:
@@ -148,7 +53,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-redis
+  name: allow-redis-ingress
   namespace: group-5
 spec:
   podSelector:
@@ -160,18 +65,3 @@ spec:
     - podSelector:
         matchLabels:
           app: gateway
----
-# Frontend: accetta ingresso dall'esterno
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-frontend
-  namespace: group-5
-spec:
-  podSelector:
-    matchLabels:
-      app: frontend
-  policyTypes:
-    - Ingress
-  ingress:
-    - {}
