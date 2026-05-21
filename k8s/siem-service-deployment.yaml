@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: siem-service
@@ -25,9 +25,15 @@ spec:
             - name: DB_USERNAME
               value: "minisiem"
             - name: DB_PASSWORD
-              value: "minisiem"
+              valueFrom:
+                secretKeyRef:
+                  name: minisiem-secrets
+                  key: db-password
             - name: JWT_SECRET
-              value: "minisiemSecretKey2024VeryLongAndSecureKeyForJWTSigning"
+              valueFrom:
+                secretKeyRef:
+                  name: minisiem-secrets
+                  key: jwt-secret
             - name: JWT_EXPIRATION
               value: "86400000"
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
