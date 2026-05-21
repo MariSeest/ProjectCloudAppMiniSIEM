@@ -1,9 +1,4 @@
-﻿# MiniSIEM v2 — Umbrella Chart Values
-# Il namespace NON e' definito qui: viene passato al momento dell'installazione
-# con: helm install minisiem . -n group-5
-# Ogni sezione corrisponde a un subchart e puo' essere abilitata/disabilitata.
-
-siem-service:
+﻿siem-service:
   enabled: true
   image:
     repository: milume/minisiem-siem
@@ -25,25 +20,7 @@ siem-service:
       memory: "1Gi"
 
 incident-service:
-  enabled: true
-  image:
-    repository: milume/minisiem-incident-service
-    tag: latest
-    pullPolicy: Always
-  replicas: 1
-  port: 8082
-  env:
-    dbUrl: jdbc:postgresql://minisiem-postgres:5432/minisiem
-    dbUsername: minisiem
-  secret:
-    name: minisiem-secrets
-  resources:
-    requests:
-      cpu: "200m"
-      memory: "512Mi"
-    limits:
-      cpu: "1000m"
-      memory: "1Gi"
+  enabled: false
 
 vulnerability-service:
   enabled: true
