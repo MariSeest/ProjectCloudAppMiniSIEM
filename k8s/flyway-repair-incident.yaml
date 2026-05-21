@@ -1,4 +1,4 @@
-apiVersion: batch/v1
+﻿apiVersion: batch/v1
 kind: Job
 metadata:
   name: flyway-repair-incident
@@ -13,6 +13,11 @@ spec:
           args:
             - -url=jdbc:postgresql://minisiem-postgres:5432/minisiem
             - -user=minisiem
-            - -password=minisiem
             - -schemas=public
             - repair
+          env:
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minisiem-secrets
+                  key: db-password
