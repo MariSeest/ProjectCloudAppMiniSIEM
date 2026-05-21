@@ -1,4 +1,4 @@
-apiVersion: v1
+﻿apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gateway-config
@@ -20,19 +20,19 @@ data:
         gateway:
           routes:
             - id: vulnerability-service
-              uri: http://{{ .Release.Name }}-vulnerability-service:{{ .Values.routes.vulnerabilityServicePort }}
+              uri: http://vulnerability-service:{{ .Values.routes.vulnerabilityServicePort }}
               predicates:
                 - Path=/api/cves/**
               filters:
                 - RemoveRequestHeader=Origin
             - id: incident-service
-              uri: http://{{ .Release.Name }}-incident-service:{{ .Values.routes.incidentServicePort }}
+              uri: http://incident-service:{{ .Values.routes.incidentServicePort }}
               predicates:
                 - Path=/api/incidents/**,/api/correlation/**
               filters:
                 - RemoveRequestHeader=Origin
             - id: siem-service
-              uri: http://{{ .Release.Name }}-siem-service:{{ .Values.routes.siemServicePort }}
+              uri: http://siem-service:{{ .Values.routes.siemServicePort }}
               predicates:
                 - Path=/api/auth/**,/api/users/**,/api/dashboard/**,/api/acn/**,/api/audit/**,/api/falxdr/**,/api/identity/**,/api/events/**,/api/alerts/**,/api/ai/**
               filters:
