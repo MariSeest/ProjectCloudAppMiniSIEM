@@ -19,12 +19,6 @@ spec:
         - name: incident-service
           image: milume/minisiem-incident-service:latest
           imagePullPolicy: Always
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop:
-                - ALL
           ports:
             - containerPort: 8082
           env:
