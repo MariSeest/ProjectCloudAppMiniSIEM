@@ -1,6 +1,6 @@
-﻿nameOverride: "incident-service"
-fullnameOverride: "incident-service"
 enabled: true
+nameOverride: "incident-service"
+fullnameOverride: "incident-service"
 image:
   repository: milume/minisiem-incident-service
   tag: latest

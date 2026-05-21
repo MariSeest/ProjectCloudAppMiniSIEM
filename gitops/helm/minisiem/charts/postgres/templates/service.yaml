@@ -1,2 +1,2 @@
-﻿# Il Service di PostgreSQL e gestito dallo StatefulSet esistente.
+# Il Service di PostgreSQL e' gestito dallo StatefulSet esistente.
 # Non viene ricreato qui per evitare conflitti con il servizio headless.

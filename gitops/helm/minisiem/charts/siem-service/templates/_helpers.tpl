@@ -1,9 +1,13 @@
-﻿{{- define "siem-service.name" -}}
+{{- define "siem-service.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- define "siem-service.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
 {{- printf "%s-%s" .Release.Name "siem-service" | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{- define "siem-service.chart" -}}

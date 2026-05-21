@@ -1,6 +1,6 @@
-﻿nameOverride: "gateway"
-fullnameOverride: "gateway"
 enabled: true
+nameOverride: "gateway"
+fullnameOverride: "gateway"
 image:
   repository: milume/minisiem-gateway
   tag: latest

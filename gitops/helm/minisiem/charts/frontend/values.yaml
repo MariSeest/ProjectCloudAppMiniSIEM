@@ -1,6 +1,6 @@
-﻿nameOverride: "frontend"
-fullnameOverride: "frontend"
 enabled: true
+nameOverride: "frontend"
+fullnameOverride: "frontend"
 image:
   repository: milume/minisiem-frontend
   tag: latest
