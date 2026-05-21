@@ -1,3 +1,5 @@
+﻿nameOverride: "gateway"
+fullnameOverride: "gateway"
 enabled: true
 image:
   repository: milume/minisiem-gateway

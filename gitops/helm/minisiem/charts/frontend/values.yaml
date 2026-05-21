@@ -1,3 +1,5 @@
+﻿nameOverride: "frontend"
+fullnameOverride: "frontend"
 enabled: true
 image:
   repository: milume/minisiem-frontend

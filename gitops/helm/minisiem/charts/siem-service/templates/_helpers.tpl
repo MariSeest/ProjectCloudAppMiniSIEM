@@ -1,4 +1,4 @@
-{{- define "siem-service.name" -}}
+﻿{{- define "siem-service.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 

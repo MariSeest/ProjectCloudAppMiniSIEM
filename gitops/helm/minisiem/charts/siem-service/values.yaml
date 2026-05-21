@@ -1,3 +1,5 @@
+﻿nameOverride: "siem-service"
+fullnameOverride: "siem-service"
 enabled: true
 image:
   repository: milume/minisiem-siem
