@@ -1,0 +1,21 @@
+enabled: true
+image:
+  repository: milume/minisiem-gateway
+  tag: latest
+  pullPolicy: Always
+replicas: 1
+port: 8080
+redis:
+  host: redis
+  port: 6379
+routes:
+  vulnerabilityServicePort: 8081
+  incidentServicePort: 8082
+  siemServicePort: 8083
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"

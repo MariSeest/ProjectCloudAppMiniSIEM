@@ -1,0 +1,6 @@
+apiVersion: v2
+name: incident-service
+description: MiniSIEM incident-service - Incidents, Correlations, Comments, Archive
+type: application
+version: 1.0.0
+appVersion: "2.0.0"

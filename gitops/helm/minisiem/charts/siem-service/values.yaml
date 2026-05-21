@@ -1,0 +1,19 @@
+enabled: true
+image:
+  repository: milume/minisiem-siem
+  tag: latest
+  pullPolicy: Always
+replicas: 1
+port: 8083
+env:
+  dbUrl: jdbc:postgresql://minisiem-postgres:5432/minisiem
+  dbUsername: minisiem
+secret:
+  name: minisiem-secrets
+resources:
+  requests:
+    cpu: "200m"
+    memory: "512Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"

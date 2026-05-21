@@ -1,0 +1,6 @@
+apiVersion: v2
+name: redis
+description: MiniSIEM Redis - Cache e session store per Spring Cloud Gateway
+type: application
+version: 1.0.0
+appVersion: "7.0"

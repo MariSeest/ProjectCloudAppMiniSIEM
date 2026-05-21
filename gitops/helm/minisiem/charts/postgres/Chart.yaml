@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postgres
+description: MiniSIEM Postgres - Service per il database (StatefulSet gestito esternamente)
+type: application
+version: 1.0.0
+appVersion: "16.0"

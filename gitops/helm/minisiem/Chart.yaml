@@ -1,6 +1,10 @@
 apiVersion: v2
 name: minisiem
-description: MiniSIEM v2 - Cloud-Native Security Platform Helm Umbrella Chart
+description: |
+  MiniSIEM v2 - Umbrella Helm Chart.
+  Gestisce il deployment completo della piattaforma cloud-native
+  per la sicurezza informatica. Ogni microservizio e' un subchart
+  indipendente con la propria configurazione.
 type: application
 version: 1.0.0
 appVersion: "2.0.0"
@@ -15,3 +19,39 @@ keywords:
   - kubernetes
   - cloud-native
   - microservices
+
+dependencies:
+  - name: siem-service
+    version: "1.0.0"
+    repository: "file://charts/siem-service"
+    condition: siem-service.enabled
+
+  - name: incident-service
+    version: "1.0.0"
+    repository: "file://charts/incident-service"
+    condition: incident-service.enabled
+
+  - name: vulnerability-service
+    version: "1.0.0"
+    repository: "file://charts/vulnerability-service"
+    condition: vulnerability-service.enabled
+
+  - name: gateway
+    version: "1.0.0"
+    repository: "file://charts/gateway"
+    condition: gateway.enabled
+
+  - name: frontend
+    version: "1.0.0"
+    repository: "file://charts/frontend"
+    condition: frontend.enabled
+
+  - name: redis
+    version: "1.0.0"
+    repository: "file://charts/redis"
+    condition: redis.enabled
+
+  - name: postgres
+    version: "1.0.0"
+    repository: "file://charts/postgres"
+    condition: postgres.enabled

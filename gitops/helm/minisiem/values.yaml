@@ -1,4 +1,92 @@
-﻿namespace: group-5
+﻿# MiniSIEM v2 — Umbrella Chart Values
+# Il namespace NON e' definito qui: viene passato al momento dell'installazione
+# con: helm install minisiem . -n group-5
+# Ogni sezione corrisponde a un subchart e puo' essere abilitata/disabilitata.
+
+siem-service:
+  enabled: true
+  image:
+    repository: milume/minisiem-siem
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  port: 8083
+  env:
+    dbUrl: jdbc:postgresql://minisiem-postgres:5432/minisiem
+    dbUsername: minisiem
+  secret:
+    name: minisiem-secrets
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+incident-service:
+  enabled: true
+  image:
+    repository: milume/minisiem-incident-service
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  port: 8082
+  env:
+    dbUrl: jdbc:postgresql://minisiem-postgres:5432/minisiem
+    dbUsername: minisiem
+  secret:
+    name: minisiem-secrets
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+vulnerability-service:
+  enabled: true
+  image:
+    repository: milume/minisiem-vulnerability-service
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  port: 8081
+  env:
+    openctiUrl: https://placeholder.lhr.life/graphql
+  secret:
+    name: minisiem-secrets
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+gateway:
+  enabled: true
+  image:
+    repository: milume/minisiem-gateway
+    tag: latest
+    pullPolicy: Always
+  replicas: 1
+  port: 8080
+  redis:
+    host: redis
+    port: 6379
+  routes:
+    vulnerabilityServicePort: 8081
+    incidentServicePort: 8082
+    siemServicePort: 8083
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
 frontend:
   enabled: true
@@ -16,81 +104,6 @@ frontend:
       cpu: "200m"
       memory: "128Mi"
 
-gateway:
-  enabled: true
-  image:
-    repository: milume/minisiem-gateway
-    tag: latest
-    pullPolicy: Always
-  replicas: 1
-  port: 8080
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-
-siemService:
-  enabled: true
-  image:
-    repository: milume/minisiem-siem
-    tag: latest
-    pullPolicy: Always
-  replicas: 1
-  port: 8083
-  clusterIP: "10.98.56.13"
-  env:
-    dbUrl: jdbc:postgresql://minisiem-postgres:5432/minisiem
-    dbUsername: minisiem
-  resources:
-    requests:
-      cpu: "200m"
-      memory: "512Mi"
-    limits:
-      cpu: "1000m"
-      memory: "1Gi"
-
-incidentService:
-  enabled: true
-  image:
-    repository: milume/minisiem-incident-service
-    tag: latest
-    pullPolicy: Always
-  replicas: 1
-  port: 8082
-  clusterIP: "10.108.34.205"
-  env:
-    dbUrl: jdbc:postgresql://minisiem-postgres:5432/minisiem
-    dbUsername: minisiem
-  resources:
-    requests:
-      cpu: "200m"
-      memory: "512Mi"
-    limits:
-      cpu: "1000m"
-      memory: "1Gi"
-
-vulnerabilityService:
-  enabled: true
-  image:
-    repository: milume/minisiem-vulnerability-service
-    tag: latest
-    pullPolicy: Always
-  replicas: 1
-  port: 8081
-  clusterIP: "10.107.191.12"
-  env:
-    openctiUrl: https://placeholder.lhr.life/graphql
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-
 redis:
   enabled: true
   image:
@@ -99,7 +112,6 @@ redis:
     pullPolicy: IfNotPresent
   replicas: 1
   port: 6379
-  clusterIP: "10.102.185.169"
   resources:
     requests:
       cpu: "50m"
@@ -110,22 +122,6 @@ redis:
 
 postgres:
   enabled: true
-  image:
-    repository: postgres
-    tag: 16-alpine
-    pullPolicy: IfNotPresent
-  replicas: 1
   port: 5432
-  database: minisiem
-  username: minisiem
-  storage: 5Gi
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "256Mi"
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-
-secrets:
-  name: minisiem-secrets
+  secret:
+    name: minisiem-secrets
